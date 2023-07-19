@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { JwtModule } from '@nestjs/jwt';
+import { CustomersModule } from './modules/customers/customers.module';
 
 @Module({
 	imports: [
@@ -15,6 +16,7 @@ import { JwtModule } from '@nestjs/jwt';
 			global: true,
 			secret: process.env.JWT_SECRET,
 		}),
+		CustomersModule,
 	],
 	controllers: [],
 	providers: [],

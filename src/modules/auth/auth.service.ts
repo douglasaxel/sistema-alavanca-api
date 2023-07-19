@@ -23,7 +23,6 @@ export class AuthService {
 
 		const { password: userPassword, ...user } = result;
 
-		console.log(password, userPassword);
 		const isMatch = await comparePassword(password, userPassword);
 		if (!isMatch) {
 			throw new UnauthorizedException('E-mail/senha incorreto');
