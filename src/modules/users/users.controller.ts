@@ -38,6 +38,7 @@ export class UsersController {
 		const newUser = await this.usersService.create({
 			...createUserDto,
 			password: await hashPasssword(createUserDto.password),
+			image: 'https://thefixt.com/user-default.jpeg',
 		});
 
 		return newUser;

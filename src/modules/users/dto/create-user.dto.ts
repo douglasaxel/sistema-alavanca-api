@@ -5,27 +5,37 @@ import { UserRoles } from '../../roles/roles.enum';
 
 export class CreateUserDto extends OmitType(User, ['id']) {
 	@IsString()
-	@IsNotEmpty()
+	@IsNotEmpty({
+		message: 'O nome não pode ser vazio',
+	})
 	@ApiProperty()
 	public name: string;
 
 	@IsString()
-	@IsNotEmpty()
+	@IsNotEmpty({
+		message: 'O e-mail não pode ser vazio',
+	})
 	@ApiProperty()
 	public email: string;
 
 	@IsString()
-	@IsNotEmpty()
+	@IsNotEmpty({
+		message: 'A senha não pode ser vazia',
+	})
 	@ApiProperty()
 	public password: string;
 
 	@IsString()
-	@IsNotEmpty()
+	@IsNotEmpty({
+		message: 'A imagem não pode ser vazia',
+	})
 	@ApiProperty()
 	public image: string;
 
 	@IsString()
-	@IsNotEmpty()
+	@IsNotEmpty({
+		message: 'O tipo de acesso não pode ser vazio',
+	})
 	@IsEnum(UserRoles, { always: true })
 	@ApiProperty()
 	public role: UserRoles;
