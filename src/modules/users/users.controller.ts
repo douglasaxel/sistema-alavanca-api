@@ -8,6 +8,8 @@ import {
 	Delete,
 	UseGuards,
 	BadRequestException,
+	NotFoundException,
+	HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -27,10 +29,18 @@ export class UsersController {
 
 	@Post()
 	async create(@Body() createUserDto: CreateUserDto) {
-		return this.usersService.create({
+		const exist = await this.usersService.findOneByEmail(createUserDto.email);
+
+		if (exist) {
+			throw new BadRequestException('E-mail já está em uso');
+		}
+
+		const newUser = await this.usersService.create({
 			...createUserDto,
 			password: await hashPasssword(createUserDto.password),
 		});
+
+		return newUser;
 	}
 
 	@Get()
@@ -50,6 +60,10 @@ export class UsersController {
 	async findOne(@Param('id') id: number) {
 		const user = await this.usersService.findOne(id);
 
+		if (!user) {
+			throw new NotFoundException('Este usuário não existe');
+		}
+
 		return {
 			id: user.id,
 			name: user.name,
@@ -64,12 +78,10 @@ export class UsersController {
 		const exist = await this.usersService.findOne(id);
 
 		if (!exist) {
-			throw new BadRequestException('User not found');
+			throw new NotFoundException('Este usuário não existe');
 		}
 
-		await this.usersService.update(id, updateUserDto);
-
-		const user = await this.usersService.findOne(id);
+		const user = await this.usersService.update(id, updateUserDto);
 
 		return {
 			id: user.id,
@@ -81,7 +93,17 @@ export class UsersController {
 	}
 
 	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.usersService.remove(+id);
+	async remove(@Param('id') id: number) {
+		const exist = await this.usersService.findOne(id);
+
+		if (!exist) {
+			throw new NotFoundException('Este usuário não existe');
+		}
+
+		await this.usersService.remove(id);
+
+		return {
+			statusCode: HttpStatus.NO_CONTENT,
+		};
 	}
 }

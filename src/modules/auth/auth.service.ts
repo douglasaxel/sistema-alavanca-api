@@ -14,7 +14,7 @@ export class AuthService {
 		private jwtService: JwtService,
 	) {}
 
-	async signIn(email: string, password: string): Promise<any> {
+	async signIn(email: string, password: string) {
 		const result = await this.usersService.findOneByEmail(email);
 
 		if (!result) {
@@ -25,7 +25,7 @@ export class AuthService {
 
 		const isMatch = await comparePassword(password, userPassword);
 		if (!isMatch) {
-			throw new UnauthorizedException('E-mail/senha incorreto');
+			throw new UnauthorizedException('Credenciais inválidas');
 		}
 
 		const token = this.jwtService.sign({

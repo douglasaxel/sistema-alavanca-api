@@ -30,14 +30,16 @@ export class CustomersService {
 	}
 
 	async findAll() {
-		const customers = await this.prismaService.customer.findMany();
+		const customers = await this.prismaService.customer.findMany({
+			where: { deletedAt: null },
+		});
 
 		return customers;
 	}
 
 	async findOne(id: number) {
 		const customer = await this.prismaService.customer.findUnique({
-			where: { id },
+			where: { id, deletedAt: null },
 		});
 
 		return customer;
@@ -45,7 +47,7 @@ export class CustomersService {
 
 	async findOneByEmail(email: string) {
 		const customer = await this.prismaService.customer.findUnique({
-			where: { email },
+			where: { email, deletedAt: null },
 		});
 
 		return customer;
@@ -56,7 +58,7 @@ export class CustomersService {
 		{ image, name, cnpj, accountable, email, phone }: UpdateCustomerDto,
 	) {
 		const customer = await this.prismaService.customer.update({
-			where: { id },
+			where: { id, deletedAt: null },
 			data: {
 				image,
 				name,

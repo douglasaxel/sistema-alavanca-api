@@ -26,12 +26,16 @@ export class UsersService {
 	}
 
 	async findAll() {
-		return this.prismaService.user.findMany();
+		const users = await this.prismaService.user.findMany({
+			where: { deletedAt: null },
+		});
+
+		return users;
 	}
 
 	async findOne(id: number) {
 		const user = await this.prismaService.user.findUnique({
-			where: { id },
+			where: { id, deletedAt: null },
 		});
 
 		return user;
@@ -39,15 +43,15 @@ export class UsersService {
 
 	async findOneByEmail(email: string) {
 		const user = await this.prismaService.user.findFirst({
-			where: { email },
+			where: { email, deletedAt: null },
 		});
 
 		return user;
 	}
 
 	async update(id: number, updateUserDto: UpdateUserDto) {
-		await this.prismaService.user.update({
-			where: { id },
+		const updatedUser = await this.prismaService.user.update({
+			where: { id, deletedAt: null },
 			data: {
 				name: updateUserDto.name,
 				email: updateUserDto.email,
@@ -56,6 +60,8 @@ export class UsersService {
 				role: updateUserDto.role,
 			},
 		});
+
+		return updatedUser;
 	}
 
 	async remove(id: number) {

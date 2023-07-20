@@ -10,6 +10,7 @@ import {
 	InternalServerErrorException,
 	NotFoundException,
 	BadRequestException,
+	HttpStatus,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -33,7 +34,7 @@ export class CustomersController {
 		);
 
 		if (exist) {
-			throw new BadRequestException('E-mail already in use');
+			throw new BadRequestException('E-mail já está em uso');
 		}
 
 		const customer = await this.customersService.create({
@@ -67,7 +68,7 @@ export class CustomersController {
 	async findOne(@Param('id') id: number) {
 		const customer = await this.customersService.findOne(id);
 		if (!customer) {
-			throw new NotFoundException('Customer not found');
+			throw new NotFoundException('Este cliente não existe');
 		}
 
 		return {
@@ -84,7 +85,7 @@ export class CustomersController {
 	) {
 		const customer = await this.customersService.findOne(id);
 		if (!customer) {
-			throw new NotFoundException('Customer not found');
+			throw new NotFoundException('Este cliente não existe');
 		}
 
 		const updatedCustomer = await this.customersService.update(
@@ -103,13 +104,13 @@ export class CustomersController {
 	async remove(@Param('id') id: number) {
 		const customer = await this.customersService.findOne(id);
 		if (!customer) {
-			throw new NotFoundException('Customer not found');
+			throw new NotFoundException('Este cliente não existe');
 		}
 
 		await this.customersService.remove(id);
 
 		return {
-			statusCode: 204,
+			statusCode: HttpStatus.NO_CONTENT,
 		};
 	}
 }
