@@ -22,7 +22,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Customers')
 @UseGuards(AuthGuard)
-@Roles(UserRoles.ADMIN)
+@Roles(UserRoles.ADMIN, UserRoles.BASIC)
 @Controller('customers')
 export class CustomersController {
 	constructor(private readonly customersService: CustomersService) {}
@@ -59,6 +59,7 @@ export class CustomersController {
 
 		return customers.map(customer => ({
 			...customer,
+			totalProjects: 0,
 			updatedAt: undefined,
 			deletedAt: undefined,
 		}));
