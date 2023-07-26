@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import {
+	IsEmail,
+	IsNotEmpty,
+	IsPhoneNumber,
+	IsString,
+	Validate,
+} from 'class-validator';
+import { ValidateCNPJ } from 'src/class-validator/ValidateCNPJ';
 
 export class CreateCustomerDto {
 	@IsString()
@@ -36,6 +43,7 @@ export class CreateCustomerDto {
 	@IsNotEmpty({
 		message: 'O CNPJ não pode ser vazio',
 	})
+	@Validate(ValidateCNPJ)
 	@ApiProperty()
 	public cnpj: string;
 

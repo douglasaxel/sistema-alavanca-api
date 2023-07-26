@@ -5,7 +5,7 @@ CREATE TABLE `User` (
     `email` VARCHAR(255) NOT NULL,
     `password` VARCHAR(255) NOT NULL,
     `image` VARCHAR(255) NOT NULL,
-    `role` ENUM('ADMIN', 'CUSTOMER', 'BASIC') NOT NULL,
+    `role` ENUM('MASTER', 'ADMIN', 'CUSTOMER', 'BASIC') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `deletedAt` DATETIME(3) NULL,

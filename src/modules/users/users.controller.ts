@@ -6,7 +6,6 @@ import {
 	Patch,
 	Param,
 	Delete,
-	UseGuards,
 	BadRequestException,
 	NotFoundException,
 	HttpStatus,
@@ -16,12 +15,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { UserRoles } from '../roles/roles.enum';
-import { AuthGuard } from '../auth/auth.guard';
+import { UseAuthGuard } from '../auth/auth.guard';
 import { hashPasssword } from 'src/utils/password';
 import { Roles } from '../roles/roles.decorator';
 
 @ApiTags('Users')
-@UseGuards(AuthGuard)
+@UseAuthGuard()
 @Roles(UserRoles.ADMIN)
 @Controller('users')
 export class UsersController {

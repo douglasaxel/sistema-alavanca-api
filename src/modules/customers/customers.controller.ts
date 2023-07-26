@@ -6,7 +6,6 @@ import {
 	Patch,
 	Param,
 	Delete,
-	UseGuards,
 	InternalServerErrorException,
 	NotFoundException,
 	BadRequestException,
@@ -15,13 +14,13 @@ import {
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
-import { AuthGuard } from '../auth/auth.guard';
+import { UseAuthGuard } from '../auth/auth.guard';
 import { Roles } from '../roles/roles.decorator';
 import { UserRoles } from '../roles/roles.enum';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Customers')
-@UseGuards(AuthGuard)
+@UseAuthGuard()
 @Roles(UserRoles.ADMIN)
 @Controller('customers')
 export class CustomersController {

@@ -3,6 +3,7 @@ import {
 	ExecutionContext,
 	Injectable,
 	UnauthorizedException,
+	UseGuards,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -46,3 +47,5 @@ export class AuthGuard implements CanActivate {
 		return type === 'Bearer' ? token : undefined;
 	}
 }
+
+export const UseAuthGuard = () => UseGuards(AuthGuard);

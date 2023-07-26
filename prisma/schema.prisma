@@ -11,6 +11,7 @@ datasource db {
 }
 
 enum UserRole {
+  MASTER
   ADMIN
   CUSTOMER
   BASIC
