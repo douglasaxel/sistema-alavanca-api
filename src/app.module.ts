@@ -5,6 +5,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { JwtModule } from '@nestjs/jwt';
 import { CustomersModule } from './modules/customers/customers.module';
+import { ProjectsModule } from './modules/projects/projects.module';
 
 @Module({
 	imports: [
@@ -17,6 +18,7 @@ import { CustomersModule } from './modules/customers/customers.module';
 			secret: process.env.JWT_SECRET,
 		}),
 		CustomersModule,
+		ProjectsModule,
 	],
 	controllers: [],
 	providers: [],
