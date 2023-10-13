@@ -28,12 +28,21 @@ export class CustomersController {
 
 	@Post()
 	async create(@Body() createCustomerDto: CreateCustomerDto) {
-		const exist = await this.customersService.findOneByEmail(
-			createCustomerDto.email,
-		);
-
-		if (exist) {
+		const exist = await this.customersService.findOneByUniqueKeys({
+			cnpj: createCustomerDto.cnpj,
+			email: createCustomerDto.email,
+			phone: createCustomerDto.phone,
+		});
+		if (createCustomerDto.email.includes(exist?.email)) {
 			throw new BadRequestException('E-mail já está em uso');
+		}
+
+		if (createCustomerDto.cnpj.includes(exist?.cnpj)) {
+			throw new BadRequestException('CNPJ já cadastrado');
+		}
+
+		if (createCustomerDto.phone.includes(exist?.phone)) {
+			throw new BadRequestException('Telefone já cadastrado');
 		}
 
 		const customer = await this.customersService.create({

@@ -27,21 +27,26 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+
+  @@map("users")
 }
 
 model Customer {
   id          Int       @id @default(autoincrement())
   image       String    @db.VarChar(255)
   name        String    @db.VarChar(255)
-  phone       String    @db.VarChar(255)
+  phone       String    @unique @db.VarChar(255)
   email       String    @unique @db.VarChar(255)
-  cnpj        String    @db.VarChar(255)
+  cnpj        String    @unique @db.VarChar(255)
   accountable String    @db.VarChar(255)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
   projects Project[]
+
+  @@index([cnpj, email, phone])
+  @@map("customers")
 }
 
 enum ProjectStatus {
@@ -55,7 +60,7 @@ model Project {
   idCustomer  Int?
   name        String        @db.VarChar(255)
   // corporateName String        @db.VarChar(255)
-  cnpj        String        @unique @db.VarChar(30)
+  // cnpj        String        @unique @db.VarChar(30)
   description String        @db.Text
   accountable String        @db.VarChar(255)
   value       Float         @db.Double
@@ -63,20 +68,24 @@ model Project {
   status      ProjectStatus @default(PENDING)
   startDate   DateTime
   endDate     DateTime
-  createdAt   DateTime
+  createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   deletedAt   DateTime?
 
-  colaborators Colaborator[]
-  customer     Customer?     @relation(fields: [idCustomer], references: [id])
+  collaborators Collaborator[]
+  customer      Customer?      @relation(fields: [idCustomer], references: [id])
+
+  @@map("projects")
 }
 
-model Colaborator {
+model Collaborator {
   id        Int      @id @default(autoincrement())
-  idProject Int
   name      String   @db.VarChar(255)
   email     String   @unique @db.VarChar(255)
   createdAt DateTime @default(now())
 
-  project Project @relation(fields: [idProject], references: [id])
+  projects Project[]
+
+  @@index([email])
+  @@map("collaborators")
 }

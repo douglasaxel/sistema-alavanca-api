@@ -1,4 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { getNumbersFromString } from '../src/utils/string-helper';
+import { dateAddOrSub } from '../src/utils/dateHelpers';
+import { fakerPT_BR as faker } from '@faker-js/faker';
+import { generate as generateCnpj } from '../src/lib/cnpj';
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -18,33 +23,151 @@ async function main() {
 		data: [
 			{
 				id: 1,
-				image: 'https://thefixt.com/user-default.jpeg',
-				name: 'Cliente 1',
-				phone: '(51) 99495-1111',
-				email: 'cliente1@gmail.com',
-				cnpj: '62.961.121/0001-57',
-				accountable: 'Responsável 1',
-				createdAt: '2023-07-26 19:36:01.147',
-				updatedAt: '2023-07-26 19:36:01.147',
-				deletedAt: null,
+				image: faker.image.avatarGitHub(),
+				name: faker.company.name(),
+				phone: getNumbersFromString(faker.phone.number()),
+				email: faker.internet.email(),
+				cnpj: getNumbersFromString(generateCnpj()),
+				accountable: faker.person.fullName(),
 			},
 			{
 				id: 2,
-				image: 'https://thefixt.com/user-default.jpeg',
-				name: 'Cliente 2',
-				phone: '(51) 99495-2222',
-				email: 'cliente2@gmail.com',
-				cnpj: '62.109.579/0001-82',
-				accountable: 'Responsável 2',
-				createdAt: '2023-07-26 19:36:49.855',
-				updatedAt: '2023-07-26 19:36:49.855',
-				deletedAt: null,
+				image: faker.image.avatarGitHub(),
+				name: faker.company.name(),
+				phone: getNumbersFromString(faker.phone.number()),
+				email: faker.internet.email(),
+				cnpj: getNumbersFromString(generateCnpj()),
+				accountable: faker.person.fullName(),
 			},
 		],
 	});
 
-	await prisma.$transaction([user, customers]);
-	console.log({ user, customers });
+	const project1 = prisma.project.create({
+		data: {
+			id: 1,
+			idCustomer: 1,
+			name: faker.commerce.productName(),
+			accountable: faker.person.fullName(),
+			description: faker.commerce.productDescription(),
+			value: 1_000_000,
+			airtableUrl:
+				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
+			collaborators: {
+				create: [
+					{
+						name: faker.person.fullName(),
+						email: faker.internet.email(),
+					},
+					{
+						name: faker.person.fullName(),
+						email: faker.internet.email(),
+					},
+					{
+						name: faker.person.fullName(),
+						email: faker.internet.email(),
+					},
+				],
+			},
+			status: 'PENDING',
+			startDate: new Date(2023, 2, 5).toISOString(),
+			endDate: new Date(2023, 11, 18).toISOString(),
+			createdAt: new Date(2023, 2, 2).toISOString(),
+		},
+	});
+	const project2 = prisma.project.create({
+		data: {
+			id: 2,
+			idCustomer: 1,
+			name: faker.commerce.productName(),
+			accountable: faker.person.fullName(),
+			description: faker.commerce.productDescription(),
+			value: 1_000_000,
+			airtableUrl:
+				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
+			collaborators: {
+				create: [
+					{
+						name: faker.person.fullName(),
+						email: faker.internet.email(),
+					},
+				],
+			},
+			status: 'PENDING',
+			startDate: new Date().toISOString(),
+			endDate: dateAddOrSub(new Date(), { months: 4 }).toISOString(),
+			createdAt: new Date().toISOString(),
+		},
+	});
+	const project3 = prisma.project.create({
+		data: {
+			id: 3,
+			idCustomer: 1,
+			name: faker.commerce.productName(),
+			accountable: faker.person.fullName(),
+			description: faker.commerce.productDescription(),
+			value: 1_000_000,
+			airtableUrl:
+				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
+			collaborators: {
+				create: [
+					{
+						name: faker.person.fullName(),
+						email: faker.internet.email(),
+					},
+					{
+						name: faker.person.fullName(),
+						email: faker.internet.email(),
+					},
+					{
+						name: faker.person.fullName(),
+						email: faker.internet.email(),
+					},
+				],
+			},
+			status: 'LATE',
+			startDate: new Date(2023, 0, 8).toISOString(),
+			endDate: new Date(2023, 5, 14).toISOString(),
+			createdAt: new Date(2023, 0, 8).toISOString(),
+		},
+	});
+	const project4 = prisma.project.create({
+		data: {
+			id: 4,
+			idCustomer: 1,
+			name: faker.commerce.productName(),
+			accountable: faker.person.fullName(),
+			description: faker.commerce.productDescription(),
+			value: 1_000_000,
+			airtableUrl:
+				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
+			collaborators: {
+				create: [
+					{
+						name: faker.person.fullName(),
+						email: faker.internet.email(),
+					},
+					{
+						name: faker.person.fullName(),
+						email: faker.internet.email(),
+					},
+				],
+			},
+			status: 'FINISHED',
+			startDate: new Date(2022, 9, 25).toISOString(),
+			endDate: new Date(2023, 5, 10).toISOString(),
+			createdAt: new Date(2022, 9, 25).toISOString(),
+		},
+	});
+
+	const [userRes, customersRes, ...projectsRes] = await prisma.$transaction([
+		user,
+		customers,
+		project1,
+		project2,
+		project3,
+		project4,
+	]);
+	console.log({ userRes, customersRes, projectsRes });
 }
 
 main()

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
 	IsEmail,
 	IsNotEmpty,
@@ -7,6 +8,7 @@ import {
 	Validate,
 } from 'class-validator';
 import { ValidateCNPJ } from 'src/class-validator/ValidateCNPJ';
+import { getNumbersFromString } from 'src/utils/string-helper';
 
 export class CreateCustomerDto {
 	@IsString()
@@ -28,6 +30,7 @@ export class CreateCustomerDto {
 		message: 'O telefone não pode ser vazio',
 	})
 	@IsPhoneNumber('BR')
+	@Transform(({ value }) => getNumbersFromString(value))
 	@ApiProperty()
 	public phone: string;
 
@@ -44,6 +47,7 @@ export class CreateCustomerDto {
 		message: 'O CNPJ não pode ser vazio',
 	})
 	@Validate(ValidateCNPJ)
+	@Transform(({ value }) => getNumbersFromString(value))
 	@ApiProperty()
 	public cnpj: string;
 

@@ -3,6 +3,12 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { PrismaService } from 'src/database/prisma.service';
 
+type IFindOneByUniqueKeysParams = {
+	cnpj?: string;
+	email?: string;
+	phone?: string;
+};
+
 @Injectable()
 export class CustomersService {
 	constructor(private prismaService: PrismaService) {}
@@ -45,10 +51,19 @@ export class CustomersService {
 		return customer;
 	}
 
-	async findOneByEmail(email: string) {
-		const customer = await this.prismaService.customer.findUnique({
-			where: { email, deletedAt: null },
+	async findOneByUniqueKeys({
+		cnpj,
+		email,
+		phone,
+	}: IFindOneByUniqueKeysParams) {
+		const customer = await this.prismaService.customer.findFirst({
+			where: {
+				deletedAt: null,
+				OR: [{ cnpj }, { email }, { phone }],
+			},
 		});
+
+		if (!customer) return null;
 
 		return customer;
 	}
