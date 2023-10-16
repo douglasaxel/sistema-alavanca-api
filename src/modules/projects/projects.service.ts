@@ -18,7 +18,7 @@ export class ProjectsService {
 		name,
 		startDate,
 		endDate,
-		customer,
+		customerId,
 		collaborators,
 	}: FindAllProjectDto) {
 		return this.prismaService.project.findMany({
@@ -26,7 +26,7 @@ export class ProjectsService {
 				name: !name ? undefined : { contains: name },
 				startDate: !startDate ? undefined : { gte: startDate },
 				endDate: !endDate ? undefined : { lte: endDate },
-				customer: !customer ? undefined : { id: customer },
+				customer: !customerId ? undefined : { id: customerId },
 				deletedAt: null,
 			},
 			include: {

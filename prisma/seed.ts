@@ -50,8 +50,10 @@ async function main() {
 			accountable: faker.person.fullName(),
 			description: faker.commerce.productDescription(),
 			value: 1_000_000,
-			airtableUrl:
+			airtableIframeUrl:
 				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
+			airtableUrl:
+				'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
 			collaborators: {
 				create: [
 					{
@@ -82,8 +84,10 @@ async function main() {
 			accountable: faker.person.fullName(),
 			description: faker.commerce.productDescription(),
 			value: 1_000_000,
-			airtableUrl:
+			airtableIframeUrl:
 				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
+			airtableUrl:
+				'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
 			collaborators: {
 				create: [
 					{
@@ -106,8 +110,10 @@ async function main() {
 			accountable: faker.person.fullName(),
 			description: faker.commerce.productDescription(),
 			value: 1_000_000,
-			airtableUrl:
+			airtableIframeUrl:
 				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
+			airtableUrl:
+				'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
 			collaborators: {
 				create: [
 					{
@@ -138,8 +144,10 @@ async function main() {
 			accountable: faker.person.fullName(),
 			description: faker.commerce.productDescription(),
 			value: 1_000_000,
-			airtableUrl:
+			airtableIframeUrl:
 				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
+			airtableUrl:
+				'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
 			collaborators: {
 				create: [
 					{

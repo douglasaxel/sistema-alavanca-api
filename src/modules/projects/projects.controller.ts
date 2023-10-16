@@ -12,7 +12,8 @@ import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectDto } from './dto/find-all-projects.dto';
-import * as Airtable from 'airtable';
+import { getDataAirtable } from 'src/utils/get-data-airtable';
+import { parseAirtableUrl } from 'src/utils/parse-airtable-url';
 
 @Controller('projects')
 export class ProjectsController {
@@ -25,14 +26,19 @@ export class ProjectsController {
 
 	@Get()
 	async findAll(@Query() findAllProjectDto: FindAllProjectDto) {
-		const a = new Airtable({
-			apiKey:
-				'patda9LbETx4Xb1b1.309a5d81085fc5e97d7a480394025c9df0074a2006969e13b4a36b2e2e08de74',
-		}).base('app8EElQ3WwjcyXxL');
+		const projects = await this.projectsService.findAll(findAllProjectDto);
+
+		const results = [];
+		for (const proj of projects) {
+			const ids = parseAirtableUrl(proj.airtableUrl);
+			const result = await getDataAirtable(ids.appId, ids.tableId);
+			console.log({ result });
+			results.push({ ...proj, airtable: result });
+		}
 
 		// const allData = await a.table('Table 1').select().all();
 
-		return this.projectsService.findAll(findAllProjectDto);
+		return results;
 		// return allData.map(data => data.fields);
 	}
 

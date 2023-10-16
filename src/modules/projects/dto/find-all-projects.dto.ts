@@ -20,7 +20,7 @@ export class FindAllProjectDto {
 	@IsOptional()
 	@ApiProperty()
 	@Transform(({ value }) => +value)
-	public customer?: number;
+	public customerId?: number;
 
 	@IsBoolean()
 	@IsOptional()

@@ -38,9 +38,16 @@ export class CustomersService {
 	async findAll() {
 		const customers = await this.prismaService.customer.findMany({
 			where: { deletedAt: null },
+			include: {
+				_count: true,
+			},
 		});
 
-		return customers;
+		return customers.map(customer => ({
+			...customer,
+			_count: undefined,
+			totalProjects: customer._count.projects,
+		}));
 	}
 
 	async findOne(id: number) {

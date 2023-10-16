@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
 	IsArray,
 	IsDate,
@@ -61,14 +61,22 @@ export class CreateProjectDto {
 	@ApiProperty()
 	public airtableUrl: string;
 
+	@IsString()
+	@IsUrl()
+	@IsNotEmpty({ message: 'A URL do iframe do AirTable não pode ser vazio' })
+	@ApiProperty()
+	public airtableIframeUrl: string;
+
 	@IsDate()
 	@IsNotEmpty({ message: 'A data de inicio não pode ser vazio' })
 	@ApiProperty()
+	@Transform(({ value }) => new Date(value))
 	public startDate: Date;
 
 	@IsDate()
 	@IsNotEmpty({ message: 'A data de entrega não pode ser vazia' })
 	@ApiProperty()
+	@Transform(({ value }) => new Date(value))
 	public endDate: Date;
 
 	@IsArray()

@@ -67,7 +67,6 @@ export class CustomersController {
 
 		return customers.map(customer => ({
 			...customer,
-			totalProjects: 0,
 			updatedAt: undefined,
 			deletedAt: undefined,
 		}));

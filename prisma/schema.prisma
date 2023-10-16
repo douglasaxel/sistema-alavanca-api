@@ -56,21 +56,22 @@ enum ProjectStatus {
 }
 
 model Project {
-  id          Int           @id @default(autoincrement())
-  idCustomer  Int?
-  name        String        @db.VarChar(255)
+  id                Int           @id @default(autoincrement())
+  idCustomer        Int?
+  name              String        @db.VarChar(255)
   // corporateName String        @db.VarChar(255)
   // cnpj        String        @unique @db.VarChar(30)
-  description String        @db.Text
-  accountable String        @db.VarChar(255)
-  value       Float         @db.Double
-  airtableUrl String        @db.VarChar(255)
-  status      ProjectStatus @default(PENDING)
-  startDate   DateTime
-  endDate     DateTime
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  deletedAt   DateTime?
+  description       String        @db.Text
+  accountable       String        @db.VarChar(255)
+  value             Float         @db.Double
+  airtableUrl       String        @db.VarChar(255)
+  airtableIframeUrl String        @db.VarChar(100)
+  status            ProjectStatus @default(PENDING)
+  startDate         DateTime
+  endDate           DateTime
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  deletedAt         DateTime?
 
   collaborators Collaborator[]
   customer      Customer?      @relation(fields: [idCustomer], references: [id])
