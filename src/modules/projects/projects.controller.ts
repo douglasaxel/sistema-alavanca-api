@@ -12,8 +12,8 @@ import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectDto } from './dto/find-all-projects.dto';
-import { getDataAirtable } from 'src/utils/get-data-airtable';
-import { parseAirtableUrl } from 'src/utils/parse-airtable-url';
+import { getProjectTasks } from 'src/utils/airtable-helpers';
+import { excludeKeyFromObj } from 'src/utils/exclude-key-from-obj';
 
 @Controller('projects')
 export class ProjectsController {
@@ -30,10 +30,8 @@ export class ProjectsController {
 
 		const results = [];
 		for (const proj of projects) {
-			const ids = parseAirtableUrl(proj.airtableUrl);
-			const result = await getDataAirtable(ids.appId, ids.tableId);
-			console.log({ result });
-			results.push({ ...proj, airtable: result });
+			const tasks = await getProjectTasks(proj.airtableUrl);
+			results.push({ ...proj, tasks });
 		}
 
 		// const allData = await a.table('Table 1').select().all();
@@ -43,8 +41,13 @@ export class ProjectsController {
 	}
 
 	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.projectsService.findOne(+id);
+	async findOne(@Param('id') id: string) {
+		const project = await this.projectsService.findOne(+id);
+		excludeKeyFromObj(project, ['deletedAt']);
+
+		const tasks = await getProjectTasks(project.airtableUrl);
+
+		return { ...project, tasks };
 	}
 
 	@Patch(':id')

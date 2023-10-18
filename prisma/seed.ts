@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { getNumbersFromString } from '../src/utils/string-helper';
-import { dateAddOrSub } from '../src/utils/dateHelpers';
+import { dateAddOrSub } from '../src/utils/date-helpers';
 import { fakerPT_BR as faker } from '@faker-js/faker';
 import { generate as generateCnpj } from '../src/lib/cnpj';
 

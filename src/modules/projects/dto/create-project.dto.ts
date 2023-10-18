@@ -11,7 +11,7 @@ import {
 	ValidateNested,
 } from 'class-validator';
 
-class ColaboratorDto {
+class CollaboratorDto {
 	@IsString()
 	@IsNotEmpty({ message: 'O nome do colaborador não pode ser vazio' })
 	public name: string;
@@ -81,6 +81,6 @@ export class CreateProjectDto {
 
 	@IsArray()
 	@ValidateNested({ each: true })
-	@Type(() => ColaboratorDto)
-	public colaborators: ColaboratorDto[];
+	@Type(() => CollaboratorDto)
+	public collaborators: CollaboratorDto[];
 }

@@ -53,6 +53,9 @@ export class CustomersService {
 	async findOne(id: number) {
 		const customer = await this.prismaService.customer.findUnique({
 			where: { id, deletedAt: null },
+			include: {
+				projects: true,
+			},
 		});
 
 		return customer;

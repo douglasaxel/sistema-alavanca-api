@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { Injectable } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -8,9 +9,19 @@ import { FindAllProjectDto } from './dto/find-all-projects.dto';
 export class ProjectsService {
 	constructor(private prismaService: PrismaService) {}
 
-	create(createProjectDto: CreateProjectDto) {
+	create({ collaborators, ...createData }: CreateProjectDto) {
 		return this.prismaService.project.create({
-			data: createProjectDto,
+			data: {
+				...createData,
+				collaborators: !collaborators
+					? undefined
+					: {
+							connectOrCreate: collaborators.map(c => ({
+								where: { email: c.email },
+								create: c,
+							})),
+					  },
+			},
 		});
 	}
 
@@ -37,18 +48,43 @@ export class ProjectsService {
 	}
 
 	findOne(id: number) {
-		return this.prismaService.project.findMany({
+		return this.prismaService.project.findFirst({
 			where: {
 				id,
 				deletedAt: null,
 			},
+			include: {
+				customer: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+				collaborators: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+			},
 		});
 	}
 
-	update(id: number, updateProjectDto: UpdateProjectDto) {
+	update(id: number, { collaborators, ...updateData }: UpdateProjectDto) {
 		return this.prismaService.project.update({
 			where: { id, deletedAt: null },
-			data: updateProjectDto,
+			data: {
+				...updateData,
+				collaborators: !collaborators
+					? undefined
+					: {
+							connectOrCreate: collaborators.map(c => ({
+								where: { email: c.email },
+								create: c,
+							})),
+					  },
+			},
 		});
 	}
 

@@ -18,6 +18,7 @@ import { UseAuthGuard } from '../auth/auth.guard';
 import { Roles } from '../roles/roles.decorator';
 import { UserRoles } from '../roles/roles.enum';
 import { ApiTags } from '@nestjs/swagger';
+import { getProjectTasks } from 'src/utils/airtable-helpers';
 
 @ApiTags('Customers')
 @UseAuthGuard()
@@ -79,8 +80,15 @@ export class CustomersController {
 			throw new NotFoundException('Este cliente não existe');
 		}
 
+		const results = [];
+		for (const proj of customer.projects) {
+			const tasks = await getProjectTasks(proj.airtableUrl);
+			results.push({ ...proj, tasks });
+		}
+
 		return {
 			...customer,
+			projects: results,
 			updatedAt: undefined,
 			deletedAt: undefined,
 		};

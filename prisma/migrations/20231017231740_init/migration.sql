@@ -43,7 +43,7 @@ CREATE TABLE `projects` (
     `accountable` VARCHAR(255) NOT NULL,
     `value` DOUBLE NOT NULL,
     `airtableUrl` VARCHAR(255) NOT NULL,
-    `airtableIframeUrl` VARCHAR(100) NOT NULL,
+    `airtableIframeUrl` VARCHAR(255) NOT NULL,
     `status` ENUM('FINISHED', 'PENDING', 'LATE') NOT NULL DEFAULT 'PENDING',
     `startDate` DATETIME(3) NOT NULL,
     `endDate` DATETIME(3) NOT NULL,
