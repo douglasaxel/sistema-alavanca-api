@@ -30,6 +30,8 @@ async function authorize() {
 		SCOPES,
 	);
 	await jwtClient.authorize();
+	auth = jwtClient;
+
 	return jwtClient;
 }
 
@@ -58,20 +60,26 @@ export async function createDriveFile(folderName: string) {
 		fields: 'id',
 	});
 
-	console.log(folder.data.id)
 	return folder.data.id;
 }
 
-export async function copyFilesToNewFolder(folderId: string) {
+export async function copyFilesToNewFolder(
+	fromFolderId: string,
+	toFolderId: string,
+) {
 	const authClient = await authorize();
 	const drive = google.drive({ version: 'v3', auth: authClient });
 
-	const filesToCopy = await listDriveFiles(folderId);
+	const filesToCopy = await listDriveFiles(fromFolderId);
+	const filesToCopyIds = filesToCopy.map(f => f.id);
+	const promises = filesToCopyIds.map(id =>
+		drive.files.copy({
+			fileId: id,
+			requestBody: {
+				parents: [toFolderId],
+			},
+		}),
+	);
 
-	for (const ftc of filesToCopy) {
-		await drive.files.copy({
-			fileId: ftc.id,
-
-		})
-	}
+	await Promise.all(promises);
 }

@@ -14,7 +14,11 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectDto } from './dto/find-all-projects.dto';
 import { getProjectTasks } from 'src/utils/airtable-helpers';
 import { excludeKeyFromObj } from 'src/utils/exclude-key-from-obj';
-import { createDriveFile, listDriveFiles } from 'src/services/googleapi';
+import {
+	copyFilesToNewFolder,
+	createDriveFile,
+	listDriveFiles,
+} from 'src/services/googleapi';
 
 @Controller('projects')
 export class ProjectsController {
@@ -23,6 +27,10 @@ export class ProjectsController {
 	@Post()
 	async create(@Body() createProjectDto: CreateProjectDto) {
 		const driverFolderId = await createDriveFile(createProjectDto.name);
+		await copyFilesToNewFolder(
+			'1jEeUHfXIziC99Q-jTWv-p3IFenauMRfz',
+			driverFolderId,
+		);
 		return this.projectsService.create(createProjectDto, driverFolderId);
 	}
 
