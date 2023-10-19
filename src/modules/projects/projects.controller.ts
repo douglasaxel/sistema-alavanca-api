@@ -14,14 +14,16 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectDto } from './dto/find-all-projects.dto';
 import { getProjectTasks } from 'src/utils/airtable-helpers';
 import { excludeKeyFromObj } from 'src/utils/exclude-key-from-obj';
+import { createDriveFile, listDriveFiles } from 'src/services/googleapi';
 
 @Controller('projects')
 export class ProjectsController {
 	constructor(private readonly projectsService: ProjectsService) {}
 
 	@Post()
-	create(@Body() createProjectDto: CreateProjectDto) {
-		return this.projectsService.create(createProjectDto);
+	async create(@Body() createProjectDto: CreateProjectDto) {
+		const driverFolderId = await createDriveFile(createProjectDto.name);
+		return this.projectsService.create(createProjectDto, driverFolderId);
 	}
 
 	@Get()
@@ -34,10 +36,7 @@ export class ProjectsController {
 			results.push({ ...proj, tasks });
 		}
 
-		// const allData = await a.table('Table 1').select().all();
-
 		return results;
-		// return allData.map(data => data.fields);
 	}
 
 	@Get(':id')
@@ -46,8 +45,13 @@ export class ProjectsController {
 		excludeKeyFromObj(project, ['deletedAt']);
 
 		const tasks = await getProjectTasks(project.airtableUrl);
+		const googleFiles = await listDriveFiles(project.driveFolderId);
 
-		return { ...project, tasks };
+		return {
+			...project,
+			tasks,
+			googleFiles,
+		};
 	}
 
 	@Patch(':id')

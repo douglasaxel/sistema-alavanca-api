@@ -66,6 +66,7 @@ model Project {
   value             Float         @db.Double
   airtableUrl       String        @db.VarChar(255)
   airtableIframeUrl String        @db.VarChar(255)
+  driveFolderId     String        @db.VarChar(255)
   status            ProjectStatus @default(PENDING)
   startDate         DateTime
   endDate           DateTime

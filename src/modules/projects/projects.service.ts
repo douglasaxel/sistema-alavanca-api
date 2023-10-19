@@ -9,10 +9,11 @@ import { FindAllProjectDto } from './dto/find-all-projects.dto';
 export class ProjectsService {
 	constructor(private prismaService: PrismaService) {}
 
-	create({ collaborators, ...createData }: CreateProjectDto) {
+	create({ collaborators, ...createData }: CreateProjectDto, driveFolderId: string) {
 		return this.prismaService.project.create({
 			data: {
 				...createData,
+				driveFolderId,
 				collaborators: !collaborators
 					? undefined
 					: {

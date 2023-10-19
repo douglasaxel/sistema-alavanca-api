@@ -44,6 +44,7 @@ CREATE TABLE `projects` (
     `value` DOUBLE NOT NULL,
     `airtableUrl` VARCHAR(255) NOT NULL,
     `airtableIframeUrl` VARCHAR(255) NOT NULL,
+    `driveFolderId` VARCHAR(255) NOT NULL,
     `status` ENUM('FINISHED', 'PENDING', 'LATE') NOT NULL DEFAULT 'PENDING',
     `startDate` DATETIME(3) NOT NULL,
     `endDate` DATETIME(3) NOT NULL,
