@@ -17,7 +17,10 @@ const credentialKeys = {
 	universe_domain: 'googleapis.com',
 };
 
-const SCOPES = ['https://www.googleapis.com/auth/drive'];
+const SCOPES = [
+	'https://www.googleapis.com/auth/drive',
+	'https://www.googleapis.com/auth/calendar',
+];
 let auth: any | null = null;
 
 async function authorize() {
@@ -82,4 +85,24 @@ export async function copyFilesToNewFolder(
 	);
 
 	await Promise.all(promises);
+}
+
+export async function listCalendarEvents() {
+	const authClient = await authorize();
+	const calendar = google.calendar({ version: 'v3', auth: authClient });
+
+	const events = await calendar.events.list({
+		calendarId: 'primary',
+		timeMin: new Date().toISOString(),
+		singleEvents: true,
+		orderBy: 'startTime',
+	});
+
+	return events.data.items.map(item => ({
+		id: item.id,
+		summary: item.summary,
+		start: item.start,
+		end: item.end,
+		meetUrl: item.hangoutLink,
+	}));
 }

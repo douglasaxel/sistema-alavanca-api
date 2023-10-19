@@ -31,9 +31,9 @@ function parseAirtableUrl(url: string): IParseOutput {
 }
 
 function parseTasks(tasks: Record<string, number>) {
-	const todo = tasks['Todo'];
-	const doing = tasks['In progress'];
-	const done = tasks['Done'];
+	const todo = tasks['Todo'] ?? 0;
+	const doing = tasks['In progress'] ?? 0;
+	const done = tasks['Done'] ?? 0;
 
 	const total = todo + doing + done;
 

@@ -17,6 +17,7 @@ import { excludeKeyFromObj } from 'src/utils/exclude-key-from-obj';
 import {
 	copyFilesToNewFolder,
 	createDriveFile,
+	listCalendarEvents,
 	listDriveFiles,
 } from 'src/services/googleapi';
 
@@ -54,11 +55,13 @@ export class ProjectsController {
 
 		const tasks = await getProjectTasks(project.airtableUrl);
 		const googleFiles = await listDriveFiles(project.driveFolderId);
+		const googleCalendar = await listCalendarEvents();
 
 		return {
 			...project,
 			tasks,
 			googleFiles,
+			googleCalendar,
 		};
 	}
 
