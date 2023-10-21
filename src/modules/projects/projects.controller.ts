@@ -7,6 +7,7 @@ import {
 	Param,
 	Delete,
 	Query,
+	NotFoundException,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -17,9 +18,12 @@ import { excludeKeyFromObj } from 'src/utils/exclude-key-from-obj';
 import {
 	copyFilesToNewFolder,
 	createDriveFile,
+	createGoogleCalendarEvent,
 	listCalendarEvents,
 	listDriveFiles,
 } from 'src/services/googleapi';
+import { CreateCalendarEventDto } from './dto/create-calendar-event.dto';
+import { ApiNoContentResponse } from '@nestjs/swagger';
 
 @Controller('projects')
 export class ProjectsController {
@@ -33,6 +37,29 @@ export class ProjectsController {
 			driverFolderId,
 		);
 		return this.projectsService.create(createProjectDto, driverFolderId);
+	}
+
+	@ApiNoContentResponse()
+	@Post(':id/event')
+	async createEvent(
+		@Param('id') id: number,
+		@Body() { startDate, endDate }: CreateCalendarEventDto,
+	) {
+		const project = await this.projectsService.findOne(id);
+
+		if (!project) throw new NotFoundException('Este projeto não existe');
+
+		const { name, collaborators } = project;
+
+		await createGoogleCalendarEvent(
+			name,
+			startDate,
+			endDate,
+			// collaborators.map(c => c.email),
+			['douglasaxelkjellin@gmail.com'],
+		);
+
+		return null;
 	}
 
 	@Get()
@@ -55,7 +82,7 @@ export class ProjectsController {
 
 		const tasks = await getProjectTasks(project.airtableUrl);
 		const googleFiles = await listDriveFiles(project.driveFolderId);
-		const googleCalendar = await listCalendarEvents();
+		const googleCalendar = await listCalendarEvents(project.name);
 
 		return {
 			...project,

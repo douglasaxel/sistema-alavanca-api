@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { google } from 'googleapis';
 // import credentialKeys from '../configs/google-api-key.json';
 
@@ -20,6 +21,7 @@ const credentialKeys = {
 const SCOPES = [
 	'https://www.googleapis.com/auth/drive',
 	'https://www.googleapis.com/auth/calendar',
+	'https://www.googleapis.com/auth/calendar.events',
 ];
 let auth: any | null = null;
 
@@ -87,22 +89,79 @@ export async function copyFilesToNewFolder(
 	await Promise.all(promises);
 }
 
-export async function listCalendarEvents() {
+export async function listCalendarEvents(projectName: string) {
 	const authClient = await authorize();
 	const calendar = google.calendar({ version: 'v3', auth: authClient });
 
 	const events = await calendar.events.list({
 		calendarId: 'primary',
 		timeMin: new Date().toISOString(),
+		maxResults: 100,
 		singleEvents: true,
 		orderBy: 'startTime',
 	});
 
-	return events.data.items.map(item => ({
-		id: item.id,
-		summary: item.summary,
-		start: item.start,
-		end: item.end,
-		meetUrl: item.hangoutLink,
-	}));
+	return events.data.items.flatMap(item => {
+		if (
+			!item.summary
+				.toLocaleLowerCase()
+				.includes(projectName.toLocaleLowerCase())
+		) {
+			return [];
+		}
+
+		return {
+			id: item.id,
+			summary: item.summary,
+			start: item.start,
+			end: item.end,
+			meetUrl: item.hangoutLink,
+		};
+	});
+}
+
+export async function createGoogleCalendarEvent(
+	projectName: string,
+	startDate: Date,
+	endDate: Date,
+	attendees: string[],
+) {
+	const authClient = await authorize();
+	const calendar = google.calendar({ version: 'v3', auth: authClient });
+
+	await calendar.events.insert({
+		calendarId: 'primary',
+		requestBody: {
+			summary: projectName,
+			description: `Reunião sobre o projeto: ${projectName}`,
+			start: {
+				dateTime: startDate.toISOString(),
+				timeZone: 'America/Sao_Paulo',
+			},
+			end: {
+				dateTime: endDate.toISOString(),
+				timeZone: 'America/Sao_Paulo',
+			},
+			eventType: 'default',
+			anyoneCanAddSelf: true,
+			guestsCanInviteOthers: true,
+			guestsCanSeeOtherGuests: true,
+			conferenceData: {
+				createRequest: {
+					requestId: randomBytes(12).toString('hex'),
+				},
+			},
+			// attendees: attendees.map(email => ({ email })),
+			attendees: [{ email: 'douglasaxelkjellin@gmail.com' }],
+			reminders: {
+				useDefault: false,
+				overrides: [
+					{ method: 'popup', minutes: 30 },
+					{ method: 'popup', minutes: 5 },
+					{ method: 'email', minutes: 30 },
+					{ method: 'email', minutes: 5 },
+				],
+			},
+		},
+	});
 }
