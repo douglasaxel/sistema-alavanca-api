@@ -37,7 +37,7 @@ export class ProjectsController {
 	async create(@Body() createProjectDto: CreateProjectDto) {
 		const driverFolderId = await createDriveFile(createProjectDto.name);
 		await copyFilesToNewFolder(
-			'1jEeUHfXIziC99Q-jTWv-p3IFenauMRfz',
+			'1cURb4T_Tlnz8RVDaOut9IYsBzVmlwa3z', // Pasta: Arquivos padrão
 			driverFolderId,
 		);
 		return this.projectsService.create(createProjectDto, driverFolderId);

@@ -55,7 +55,9 @@ export async function createDriveFile(folderName: string) {
 		requestBody: {
 			name: folderName,
 			mimeType: 'application/vnd.google-apps.folder',
-			parents: ['1L6vjs21M4qIu23NxZaUvzhMqmoSyfuy-'],
+			parents: [
+				'1g69Ixhuz_ekuDfBwd4M6sv_Dj1HNZeUO' // Pasta: Sistema Alavanca
+			],
 		},
 		fields: 'id',
 	});
