@@ -3,24 +3,13 @@ import { Transform, Type } from 'class-transformer';
 import {
 	IsArray,
 	IsDate,
-	IsEmail,
 	IsNotEmpty,
 	IsNumber,
 	IsString,
 	IsUrl,
 	ValidateNested,
 } from 'class-validator';
-
-class CollaboratorDto {
-	@IsString()
-	@IsNotEmpty({ message: 'O nome do colaborador não pode ser vazio' })
-	public name: string;
-
-	@IsString()
-	@IsEmail()
-	@IsNotEmpty({ message: 'O e-mail do colaborador não pode ser vazio' })
-	public email: string;
-}
+import { CreateCollaboratorDto } from './create-collaborator.dto';
 
 export class CreateProjectDto {
 	@IsString()
@@ -81,6 +70,6 @@ export class CreateProjectDto {
 
 	@IsArray()
 	@ValidateNested({ each: true })
-	@Type(() => CollaboratorDto)
-	public collaborators: CollaboratorDto[];
+	@Type(() => CreateCollaboratorDto)
+	public collaborators: CreateCollaboratorDto[];
 }

@@ -35,15 +35,15 @@ export class CustomersController {
 			phone: createCustomerDto.phone,
 		});
 		if (createCustomerDto.email.includes(exist?.email)) {
-			throw new BadRequestException('E-mail já está em uso');
+			throw new BadRequestException(['E-mail já está em uso']);
 		}
 
 		if (createCustomerDto.cnpj.includes(exist?.cnpj)) {
-			throw new BadRequestException('CNPJ já cadastrado');
+			throw new BadRequestException(['CNPJ já cadastrado']);
 		}
 
 		if (createCustomerDto.phone.includes(exist?.phone)) {
-			throw new BadRequestException('Telefone já cadastrado');
+			throw new BadRequestException(['Telefone já cadastrado']);
 		}
 
 		const customer = await this.customersService.create({
@@ -77,7 +77,7 @@ export class CustomersController {
 	async findOne(@Param('id') id: number) {
 		const customer = await this.customersService.findOne(id);
 		if (!customer) {
-			throw new NotFoundException('Este cliente não existe');
+			throw new NotFoundException(['Este cliente não existe']);
 		}
 
 		const results = [];
@@ -101,7 +101,7 @@ export class CustomersController {
 	) {
 		const customer = await this.customersService.findOne(id);
 		if (!customer) {
-			throw new NotFoundException('Este cliente não existe');
+			throw new NotFoundException(['Este cliente não existe']);
 		}
 
 		const updatedCustomer = await this.customersService.update(
@@ -120,7 +120,7 @@ export class CustomersController {
 	async remove(@Param('id') id: number) {
 		const customer = await this.customersService.findOne(id);
 		if (!customer) {
-			throw new NotFoundException('Este cliente não existe');
+			throw new NotFoundException(['Este cliente não existe']);
 		}
 
 		await this.customersService.remove(id);

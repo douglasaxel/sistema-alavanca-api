@@ -8,6 +8,8 @@ import {
 	Delete,
 	Query,
 	NotFoundException,
+	BadRequestException,
+	Put,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -24,6 +26,8 @@ import {
 } from 'src/services/googleapi';
 import { CreateCalendarEventDto } from './dto/create-calendar-event.dto';
 import { ApiNoContentResponse } from '@nestjs/swagger';
+import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
+import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 
 @Controller('projects')
 export class ProjectsController {
@@ -47,7 +51,12 @@ export class ProjectsController {
 	) {
 		const project = await this.projectsService.findOne(id);
 
-		if (!project) throw new NotFoundException('Este projeto não existe');
+		if (!project) throw new NotFoundException(['Este projeto não existe']);
+		if (endDate <= startDate) {
+			throw new BadRequestException([
+				'A data final não pode ser anterior a data inicial',
+			]);
+		}
 
 		const { name, collaborators } = project;
 
@@ -55,8 +64,8 @@ export class ProjectsController {
 			name,
 			startDate,
 			endDate,
-			// collaborators.map(c => c.email),
-			['douglasaxelkjellin@gmail.com'],
+			collaborators.map(c => c.email),
+			// ['douglasaxelkjellin@gmail.com'],
 		);
 
 		return null;
@@ -78,6 +87,10 @@ export class ProjectsController {
 	@Get(':id')
 	async findOne(@Param('id') id: string) {
 		const project = await this.projectsService.findOne(+id);
+		if (!project) {
+			throw new NotFoundException(['Este projeto não existe']);
+		}
+
 		excludeKeyFromObj(project, ['deletedAt']);
 
 		const tasks = await getProjectTasks(project.airtableUrl);
@@ -95,6 +108,24 @@ export class ProjectsController {
 	@Patch(':id')
 	update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
 		return this.projectsService.update(+id, updateProjectDto);
+	}
+
+	@Put(':id/collaborators')
+	async addCollaborators(
+		@Param('id') id: number,
+		@Body() createCollaboratorDto: CreateCollaboratorDto,
+	) {
+		return this.projectsService.createCollaborators(id, createCollaboratorDto);
+	}
+
+	@ApiNoContentResponse()
+	@Delete(':id/collaborators/:idCollaborator')
+	async removeCollaborators(
+		@Param('id') id: number,
+		@Param('idCollaborator') idCollaborator: number,
+	) {
+		await this.projectsService.removeCollaborators(id, idCollaborator);
+		return null
 	}
 
 	@Delete(':id')

@@ -4,12 +4,17 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from 'src/database/prisma.service';
 import { FindAllProjectDto } from './dto/find-all-projects.dto';
+import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
+import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
 
 @Injectable()
 export class ProjectsService {
 	constructor(private prismaService: PrismaService) {}
 
-	create({ collaborators, ...createData }: CreateProjectDto, driveFolderId: string) {
+	create(
+		{ collaborators, ...createData }: CreateProjectDto,
+		driveFolderId: string,
+	) {
 		return this.prismaService.project.create({
 			data: {
 				...createData,
@@ -17,10 +22,7 @@ export class ProjectsService {
 				collaborators: !collaborators
 					? undefined
 					: {
-							connectOrCreate: collaborators.map(c => ({
-								where: { email: c.email },
-								create: c,
-							})),
+							create: collaborators,
 					  },
 			},
 		});
@@ -72,21 +74,29 @@ export class ProjectsService {
 		});
 	}
 
-	update(id: number, { collaborators, ...updateData }: UpdateProjectDto) {
+	update(id: number, updateData: UpdateProjectDto) {
 		return this.prismaService.project.update({
 			where: { id, deletedAt: null },
 			data: {
 				...updateData,
-				collaborators: !collaborators
-					? undefined
-					: {
-							connectOrCreate: collaborators.map(c => ({
-								where: { email: c.email },
-								create: c,
-							})),
-					  },
+				collaborators: undefined,
 			},
 		});
+	}
+
+	async createCollaborators(id: number, collaborator: CreateCollaboratorDto) {
+		return this.prismaService.collaborator.create({
+			data: {
+				...collaborator,
+				idProject: id,
+			}
+		})
+	}
+
+	async removeCollaborators(idProject:number, idCollaborator: number) {
+		return this.prismaService.collaborator.delete({
+			where: { id: idCollaborator, idProject }
+		})
 	}
 
 	remove(id: number) {

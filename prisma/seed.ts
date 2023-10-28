@@ -26,7 +26,7 @@ async function main() {
 				image: faker.image.avatarGitHub(),
 				name: faker.company.name(),
 				phone: getNumbersFromString(faker.phone.number()),
-				email: faker.internet.email(),
+				email: faker.internet.email().toLocaleLowerCase(),
 				cnpj: getNumbersFromString(generateCnpj()),
 				accountable: faker.person.fullName(),
 			},
@@ -35,7 +35,7 @@ async function main() {
 				image: faker.image.avatarGitHub(),
 				name: faker.company.name(),
 				phone: getNumbersFromString(faker.phone.number()),
-				email: faker.internet.email(),
+				email: faker.internet.email().toLocaleLowerCase(),
 				cnpj: getNumbersFromString(generateCnpj()),
 				accountable: faker.person.fullName(),
 			},
@@ -58,15 +58,15 @@ async function main() {
 				create: [
 					{
 						name: faker.person.fullName(),
-						email: faker.internet.email(),
+						email: faker.internet.email().toLocaleLowerCase(),
 					},
 					{
 						name: faker.person.fullName(),
-						email: faker.internet.email(),
+						email: faker.internet.email().toLocaleLowerCase(),
 					},
 					{
 						name: faker.person.fullName(),
-						email: faker.internet.email(),
+						email: faker.internet.email().toLocaleLowerCase(),
 					},
 				],
 			},
@@ -93,7 +93,7 @@ async function main() {
 				create: [
 					{
 						name: faker.person.fullName(),
-						email: faker.internet.email(),
+						email: faker.internet.email().toLocaleLowerCase(),
 					},
 				],
 			},
@@ -120,15 +120,15 @@ async function main() {
 				create: [
 					{
 						name: faker.person.fullName(),
-						email: faker.internet.email(),
+						email: faker.internet.email().toLocaleLowerCase(),
 					},
 					{
 						name: faker.person.fullName(),
-						email: faker.internet.email(),
+						email: faker.internet.email().toLocaleLowerCase(),
 					},
 					{
 						name: faker.person.fullName(),
-						email: faker.internet.email(),
+						email: faker.internet.email().toLocaleLowerCase(),
 					},
 				],
 			},
@@ -155,11 +155,11 @@ async function main() {
 				create: [
 					{
 						name: faker.person.fullName(),
-						email: faker.internet.email(),
+						email: faker.internet.email().toLocaleLowerCase(),
 					},
 					{
 						name: faker.person.fullName(),
-						email: faker.internet.email(),
+						email: faker.internet.email().toLocaleLowerCase(),
 					},
 				],
 			},

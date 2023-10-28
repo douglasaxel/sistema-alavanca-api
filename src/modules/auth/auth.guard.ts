@@ -20,11 +20,13 @@ export class AuthGuard implements CanActivate {
 		const token = this.extractTokenFromHeader(request);
 
 		if (!token) {
-			throw new UnauthorizedException();
+			throw new UnauthorizedException(['O token de autorização é obrigatório']);
 		}
 
 		try {
-			const payload = await this.jwtService.verifyAsync(token);
+			const payload = await this.jwtService.verifyAsync(token, {
+				secret: process.env.JWT_SECRET,
+			});
 			const requiredRoles = this.reflector.getAllAndOverride<UserRoles[]>(
 				ROLES_KEY,
 				[context.getHandler(), context.getClass()],
@@ -37,7 +39,7 @@ export class AuthGuard implements CanActivate {
 			request['user'] = payload;
 			return requiredRoles.some(role => payload.role?.includes(role));
 		} catch {
-			throw new UnauthorizedException();
+			throw new UnauthorizedException(['Você não possui permissão']);
 		}
 		return true;
 	}

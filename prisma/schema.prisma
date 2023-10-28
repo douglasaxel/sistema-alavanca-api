@@ -82,12 +82,13 @@ model Project {
 
 model Collaborator {
   id        Int      @id @default(autoincrement())
+  idProject Int
   name      String   @db.VarChar(255)
-  email     String   @unique @db.VarChar(255)
+  email     String   @db.VarChar(255)
   createdAt DateTime @default(now())
 
-  projects Project[]
+  project Project @relation(fields: [idProject], references: [id])
 
-  @@index([email])
+  @@index([idProject, email])
   @@map("collaborators")
 }

@@ -11,7 +11,7 @@ export class UsersService {
 		const exist = await this.findOneByEmail(createUserDto.email);
 
 		if (exist) {
-			throw new BadRequestException('E-mail already in use');
+			throw new BadRequestException(['E-mail already in use']);
 		}
 
 		await this.prismaService.user.create({

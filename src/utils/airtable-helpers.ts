@@ -1,4 +1,4 @@
-import * as Airtable from 'airtable';
+import Airtable from 'airtable';
 
 async function getDataAirtable(appId: string, tableId: string) {
 	const table = new Airtable({

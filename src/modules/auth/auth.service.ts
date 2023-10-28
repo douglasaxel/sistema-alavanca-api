@@ -18,22 +18,28 @@ export class AuthService {
 		const result = await this.usersService.findOneByEmail(email);
 
 		if (!result) {
-			throw new NotFoundException('Usuário não encontrado');
+			throw new NotFoundException(['Usuário não encontrado']);
 		}
 
 		const { password: userPassword, ...user } = result;
 
 		const isMatch = await comparePassword(password, userPassword);
 		if (!isMatch) {
-			throw new UnauthorizedException('Credenciais inválidas');
+			throw new UnauthorizedException(['Credenciais inválidas']);
 		}
 
-		const token = this.jwtService.sign({
-			sub: user.id,
-			name: user.name,
-			email: user.email,
-			role: user.role,
-		});
+		const token = this.jwtService.sign(
+			{
+				sub: user.id,
+				name: user.name,
+				email: user.email,
+				role: user.role,
+			},
+			{
+				expiresIn: '5s',
+				secret: process.env.JWT_SECRET,
+			},
+		);
 
 		return {
 			token,

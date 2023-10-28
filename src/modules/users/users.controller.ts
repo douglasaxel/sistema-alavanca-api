@@ -31,7 +31,7 @@ export class UsersController {
 		const exist = await this.usersService.findOneByEmail(createUserDto.email);
 
 		if (exist) {
-			throw new BadRequestException('E-mail já está em uso');
+			throw new BadRequestException(['E-mail já está em uso']);
 		}
 
 		const newUser = await this.usersService.create({
@@ -61,7 +61,7 @@ export class UsersController {
 		const user = await this.usersService.findOne(id);
 
 		if (!user) {
-			throw new NotFoundException('Este usuário não existe');
+			throw new NotFoundException(['Este usuário não existe']);
 		}
 
 		return {
@@ -78,7 +78,7 @@ export class UsersController {
 		const exist = await this.usersService.findOne(id);
 
 		if (!exist) {
-			throw new NotFoundException('Este usuário não existe');
+			throw new NotFoundException(['Este usuário não existe']);
 		}
 
 		const user = await this.usersService.update(id, updateUserDto);
@@ -97,7 +97,7 @@ export class UsersController {
 		const exist = await this.usersService.findOne(id);
 
 		if (!exist) {
-			throw new NotFoundException('Este usuário não existe');
+			throw new NotFoundException(['Este usuário não existe']);
 		}
 
 		await this.usersService.remove(id);
