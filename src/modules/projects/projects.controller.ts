@@ -19,7 +19,7 @@ import { getProjectTasks } from 'src/utils/airtable-helpers';
 import { excludeKeyFromObj } from 'src/utils/exclude-key-from-obj';
 import {
 	copyFilesToNewFolder,
-	createDriveFile,
+	createDriveFolder,
 	createGoogleCalendarEvent,
 	listCalendarEvents,
 	listDriveFiles,
@@ -35,7 +35,7 @@ export class ProjectsController {
 
 	@Post()
 	async create(@Body() createProjectDto: CreateProjectDto) {
-		const driverFolderId = await createDriveFile(createProjectDto.name);
+		const driverFolderId = await createDriveFolder(createProjectDto.name);
 		await copyFilesToNewFolder(
 			'1cURb4T_Tlnz8RVDaOut9IYsBzVmlwa3z', // Pasta: Arquivos padrão
 			driverFolderId,

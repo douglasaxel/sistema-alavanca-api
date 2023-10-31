@@ -2,6 +2,7 @@ import { randomBytes } from 'crypto';
 import { google } from 'googleapis';
 import { readFile } from 'fs/promises';
 import path from 'path';
+import { PassThrough } from 'stream';
 
 const SCOPES = [
 	'https://www.googleapis.com/auth/drive',
@@ -48,7 +49,7 @@ export async function listDriveFiles(folderId: string) {
 	return files;
 }
 
-export async function createDriveFile(folderName: string) {
+export async function createDriveFolder(folderName: string) {
 	const authClient = await authorize();
 	const drive = google.drive({ version: 'v3', auth: authClient });
 	const folder = await drive.files.create({
@@ -56,13 +57,60 @@ export async function createDriveFile(folderName: string) {
 			name: folderName,
 			mimeType: 'application/vnd.google-apps.folder',
 			parents: [
-				'1g69Ixhuz_ekuDfBwd4M6sv_Dj1HNZeUO' // Pasta: Sistema Alavanca
+				'1g69Ixhuz_ekuDfBwd4M6sv_Dj1HNZeUO', // Pasta: Sistema Alavanca
 			],
 		},
 		fields: 'id',
 	});
 
 	return folder.data.id;
+}
+
+interface CreateDriveFileParams {
+	fileBase64: string;
+	name: string;
+	mimeType: string;
+	type: 'user' | 'customer';
+}
+
+export async function createDriveFile({
+	fileBase64,
+	name,
+	mimeType,
+	type,
+}: CreateDriveFileParams) {
+	const authClient = await authorize();
+	const drive = google.drive({ version: 'v3', auth: authClient });
+
+	const buffer = Buffer.from(fileBase64, 'base64');
+	const bufferStream = new PassThrough();
+	bufferStream.end(buffer);
+
+	const newFile = await drive.files.create({
+		media: {
+			mimeType,
+			body: bufferStream,
+		},
+		requestBody: {
+			name: `${randomBytes(8).toString('hex')} - ${name}`,
+			parents: [
+				// '1g69Ixhuz_ekuDfBwd4M6sv_Dj1HNZeUO', // Pasta: Sistema Alavanca
+				// '1ISbp6BA4bLxM57pTDR3RJabz4jAQs-n2', // Pasta: Imagens
+				type === 'user'
+					? '1SycjKjUo2RwfOFO2ZHSGRbwnaBdJ6b5p' // Pasta: Usuários
+					: '1H68ALlZTsrPrbaDIUXRkOlUsM6CdScyt', // Pasta: Clientes
+			],
+		},
+		fields: 'id',
+	});
+
+	const responseFile = await drive.files.get({
+		fileId: newFile.data.id,
+		fields: 'thumbnailLink',
+		// 'linkShareMetadata,iconLink,exportLinks,webViewLink,thumbnailLink,webContentLink',
+	});
+
+	return responseFile.data.thumbnailLink;
 }
 
 export async function copyFilesToNewFolder(
@@ -107,7 +155,7 @@ export async function listCalendarEvents(projectName: string) {
 			return [];
 		}
 
-		console.log(item)
+		console.log(item);
 
 		return {
 			id: item.id,

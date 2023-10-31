@@ -1,6 +1,6 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsBase64, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { UserRoles } from '../../roles/roles.enum';
 
 export class CreateUserDto extends OmitType(User, ['id']) {
@@ -25,6 +25,7 @@ export class CreateUserDto extends OmitType(User, ['id']) {
 	@ApiProperty()
 	public password: string;
 
+	// @IsBase64({ message: 'A imagem deve ser enviada em base64' })
 	@IsString()
 	@IsNotEmpty({
 		message: 'A imagem não pode ser vazia',

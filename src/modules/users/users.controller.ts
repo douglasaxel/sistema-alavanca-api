@@ -18,6 +18,8 @@ import { UserRoles } from '../roles/roles.enum';
 import { UseAuthGuard } from '../auth/auth.guard';
 import { hashPasssword } from 'src/utils/password';
 import { Roles } from '../roles/roles.decorator';
+import { createDriveFile } from 'src/services/googleapi';
+import { getBase64MimeTypeAndValue } from 'src/utils/string-helper';
 
 @ApiTags('Users')
 @UseAuthGuard()
@@ -34,10 +36,18 @@ export class UsersController {
 			throw new BadRequestException(['E-mail já está em uso']);
 		}
 
+		const { base64, mimeType } = getBase64MimeTypeAndValue(createUserDto.image);
+		const thumbnailLink = await createDriveFile({
+			fileBase64: base64,
+			name: createUserDto.name,
+			type: 'user',
+			mimeType,
+		});
+
 		const newUser = await this.usersService.create({
 			...createUserDto,
 			password: await hashPasssword(createUserDto.password),
-			image: 'https://thefixt.com/user-default.jpeg',
+			image: thumbnailLink,
 		});
 
 		return newUser;
