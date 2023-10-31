@@ -19,10 +19,12 @@ import { Roles } from '../roles/roles.decorator';
 import { UserRoles } from '../roles/roles.enum';
 import { ApiTags } from '@nestjs/swagger';
 import { getProjectTasks } from 'src/utils/airtable-helpers';
+import { getBase64MimeTypeAndValue } from 'src/utils/string-helper';
+import { createDriveFile } from 'src/services/googleapi';
 
 @ApiTags('Customers')
 @UseAuthGuard()
-@Roles(UserRoles.ADMIN)
+@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 @Controller('customers')
 export class CustomersController {
 	constructor(private readonly customersService: CustomersService) {}
@@ -46,9 +48,19 @@ export class CustomersController {
 			throw new BadRequestException(['Telefone já cadastrado']);
 		}
 
+		const { base64, mimeType } = getBase64MimeTypeAndValue(
+			createCustomerDto.image,
+		);
+		const thumbnailLink = await createDriveFile({
+			fileBase64: base64,
+			name: createCustomerDto.name,
+			type: 'customer',
+			mimeType,
+		});
+
 		const customer = await this.customersService.create({
 			...createCustomerDto,
-			image: 'https://thefixt.com/user-default.jpeg',
+			image: thumbnailLink,
 		});
 
 		if (!customer) {

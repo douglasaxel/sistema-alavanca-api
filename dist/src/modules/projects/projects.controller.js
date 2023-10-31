@@ -24,6 +24,8 @@ const googleapi_1 = require("../../services/googleapi");
 const create_calendar_event_dto_1 = require("./dto/create-calendar-event.dto");
 const swagger_1 = require("@nestjs/swagger");
 const create_collaborator_dto_1 = require("./dto/create-collaborator.dto");
+const roles_decorator_1 = require("../roles/roles.decorator");
+const roles_enum_1 = require("../roles/roles.enum");
 let ProjectsController = exports.ProjectsController = class ProjectsController {
     constructor(projectsService) {
         this.projectsService = projectsService;
@@ -148,6 +150,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ProjectsController.prototype, "remove", null);
 exports.ProjectsController = ProjectsController = __decorate([
+    (0, roles_decorator_1.Roles)(roles_enum_1.UserRoles.ADMIN, roles_enum_1.UserRoles.MASTER, roles_enum_1.UserRoles.CUSTOMER, roles_enum_1.UserRoles.BASIC),
     (0, common_1.Controller)('projects'),
     __metadata("design:paramtypes", [projects_service_1.ProjectsService])
 ], ProjectsController);

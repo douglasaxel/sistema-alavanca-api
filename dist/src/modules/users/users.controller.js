@@ -133,7 +133,7 @@ __decorate([
 exports.UsersController = UsersController = __decorate([
     (0, swagger_1.ApiTags)('Users'),
     (0, auth_guard_1.UseAuthGuard)(),
-    (0, roles_decorator_1.Roles)(roles_enum_1.UserRoles.ADMIN),
+    (0, roles_decorator_1.Roles)(roles_enum_1.UserRoles.ADMIN, roles_enum_1.UserRoles.MASTER),
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])
 ], UsersController);

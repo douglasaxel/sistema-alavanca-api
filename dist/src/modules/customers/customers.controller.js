@@ -22,6 +22,8 @@ const roles_decorator_1 = require("../roles/roles.decorator");
 const roles_enum_1 = require("../roles/roles.enum");
 const swagger_1 = require("@nestjs/swagger");
 const airtable_helpers_1 = require("../../utils/airtable-helpers");
+const string_helper_1 = require("../../utils/string-helper");
+const googleapi_1 = require("../../services/googleapi");
 let CustomersController = exports.CustomersController = class CustomersController {
     constructor(customersService) {
         this.customersService = customersService;
@@ -41,9 +43,16 @@ let CustomersController = exports.CustomersController = class CustomersControlle
         if (createCustomerDto.phone.includes(exist?.phone)) {
             throw new common_1.BadRequestException(['Telefone já cadastrado']);
         }
+        const { base64, mimeType } = (0, string_helper_1.getBase64MimeTypeAndValue)(createCustomerDto.image);
+        const thumbnailLink = await (0, googleapi_1.createDriveFile)({
+            fileBase64: base64,
+            name: createCustomerDto.name,
+            type: 'customer',
+            mimeType,
+        });
         const customer = await this.customersService.create({
             ...createCustomerDto,
-            image: 'https://thefixt.com/user-default.jpeg',
+            image: thumbnailLink,
         });
         if (!customer) {
             throw new common_1.InternalServerErrorException();
@@ -140,7 +149,7 @@ __decorate([
 exports.CustomersController = CustomersController = __decorate([
     (0, swagger_1.ApiTags)('Customers'),
     (0, auth_guard_1.UseAuthGuard)(),
-    (0, roles_decorator_1.Roles)(roles_enum_1.UserRoles.ADMIN),
+    (0, roles_decorator_1.Roles)(roles_enum_1.UserRoles.ADMIN, roles_enum_1.UserRoles.MASTER),
     (0, common_1.Controller)('customers'),
     __metadata("design:paramtypes", [customers_service_1.CustomersService])
 ], CustomersController);

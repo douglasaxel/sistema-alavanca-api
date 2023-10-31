@@ -27,8 +27,10 @@ import {
 import { CreateCalendarEventDto } from './dto/create-calendar-event.dto';
 import { ApiNoContentResponse } from '@nestjs/swagger';
 import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
-import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
+import { Roles } from '../roles/roles.decorator';
+import { UserRoles } from '../roles/roles.enum';
 
+@Roles(UserRoles.ADMIN, UserRoles.MASTER, UserRoles.CUSTOMER, UserRoles.BASIC)
 @Controller('projects')
 export class ProjectsController {
 	constructor(private readonly projectsService: ProjectsService) {}
@@ -125,7 +127,7 @@ export class ProjectsController {
 		@Param('idCollaborator') idCollaborator: number,
 	) {
 		await this.projectsService.removeCollaborators(id, idCollaborator);
-		return null
+		return null;
 	}
 
 	@Delete(':id')

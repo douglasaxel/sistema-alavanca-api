@@ -23,7 +23,7 @@ import { getBase64MimeTypeAndValue } from 'src/utils/string-helper';
 
 @ApiTags('Users')
 @UseAuthGuard()
-@Roles(UserRoles.ADMIN)
+@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 @Controller('users')
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
