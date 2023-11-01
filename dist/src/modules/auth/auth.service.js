@@ -21,6 +21,8 @@ let AuthService = exports.AuthService = class AuthService {
     }
     async signIn(email, password) {
         const result = await this.usersService.findOneByEmail(email);
+        console.log({ email, password });
+        console.log({ result });
         if (!result) {
             throw new common_1.NotFoundException(['Usuário não encontrado']);
         }
