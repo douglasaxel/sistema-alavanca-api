@@ -4,7 +4,6 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from 'src/database/prisma.service';
 import { FindAllProjectDto } from './dto/find-all-projects.dto';
-import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
 
 @Injectable()
@@ -12,7 +11,7 @@ export class ProjectsService {
 	constructor(private prismaService: PrismaService) {}
 
 	create(
-		{ collaborators, ...createData }: CreateProjectDto,
+		{ collaborators, airtableLinks, ...createData }: CreateProjectDto,
 		driveFolderId: string,
 	) {
 		return this.prismaService.project.create({
@@ -23,6 +22,11 @@ export class ProjectsService {
 					? undefined
 					: {
 							create: collaborators,
+					  },
+				airtableLinks: !airtableLinks
+					? undefined
+					: {
+							create: airtableLinks,
 					  },
 			},
 		});
@@ -45,6 +49,7 @@ export class ProjectsService {
 			},
 			include: {
 				customer: true,
+				airtableLinks: true,
 				collaborators,
 			},
 		});
@@ -80,6 +85,7 @@ export class ProjectsService {
 			data: {
 				...updateData,
 				collaborators: undefined,
+				airtableLinks: undefined,
 			},
 		});
 	}
@@ -89,14 +95,14 @@ export class ProjectsService {
 			data: {
 				...collaborator,
 				idProject: id,
-			}
-		})
+			},
+		});
 	}
 
-	async removeCollaborators(idProject:number, idCollaborator: number) {
+	async removeCollaborators(idProject: number, idCollaborator: number) {
 		return this.prismaService.collaborator.delete({
-			where: { id: idCollaborator, idProject }
-		})
+			where: { id: idCollaborator, idProject },
+		});
 	}
 
 	remove(id: number) {

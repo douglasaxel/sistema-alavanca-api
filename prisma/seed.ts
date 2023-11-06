@@ -52,8 +52,22 @@ async function main() {
 			value: 1_000_000,
 			airtableIframeUrl:
 				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
-			airtableUrl:
-				'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
+			airtableUrl: null,
+			airtableLinks: {
+				createMany: {
+					data: [
+						{
+							url: 'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
+						},
+						{
+							url: 'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
+						},
+						{
+							url: 'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
+						},
+					],
+				},
+			},
 			collaborators: {
 				create: [
 					{
@@ -87,8 +101,16 @@ async function main() {
 			value: 1_000_000,
 			airtableIframeUrl:
 				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
-			airtableUrl:
-				'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
+			airtableUrl: null,
+			airtableLinks: {
+				createMany: {
+					data: [
+						{
+							url: 'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
+						},
+					],
+				},
+			},
 			collaborators: {
 				create: [
 					{
@@ -114,8 +136,19 @@ async function main() {
 			value: 1_000_000,
 			airtableIframeUrl:
 				'https://airtable.com/embed/appV1QHqk4si2TYRZ/shrjnLYTTdgWEkqdY?backgroundColor=blue&viewControls=on',
-			airtableUrl:
-				'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
+			airtableUrl: null,
+			airtableLinks: {
+				createMany: {
+					data: [
+						{
+							url: 'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
+						},
+						{
+							url: 'https://airtable.com/app8EElQ3WwjcyXxL/tbliB0HhLfrHxZCuk/viwjfsVo0B79RF1ev?blocks=hide',
+						},
+					],
+				},
+			},
 			collaborators: {
 				create: [
 					{

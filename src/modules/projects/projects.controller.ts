@@ -15,7 +15,7 @@ import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectDto } from './dto/find-all-projects.dto';
-import { getProjectTasks } from 'src/utils/airtable-helpers';
+import { getProjectTasks } from 'src/services/airtable';
 import { excludeKeyFromObj } from 'src/utils/exclude-key-from-obj';
 import {
 	copyFilesToNewFolder,
@@ -79,11 +79,23 @@ export class ProjectsController {
 
 		const results = [];
 		for (const proj of projects) {
-			const tasks = await getProjectTasks(proj.airtableUrl);
-			results.push({ ...proj, tasks });
+			const totalTasks = {
+				todo: 0,
+				doing: 0,
+				done: 0,
+				total: 0,
+			};
+			for (const link of proj.airtableLinks) {
+				const tasks = await getProjectTasks(link.url);
+				totalTasks.todo = totalTasks.todo + tasks.todo;
+				totalTasks.doing = totalTasks.doing + tasks.doing;
+				totalTasks.done = totalTasks.done + tasks.done;
+				totalTasks.total = totalTasks.total + tasks.total;
+			}
+			results.push({ ...proj, tasks: totalTasks });
 		}
 
-		return results;
+		return results.map(p => ({ ...p, airtableLinks: undefined }));
 	}
 
 	@Get(':id')

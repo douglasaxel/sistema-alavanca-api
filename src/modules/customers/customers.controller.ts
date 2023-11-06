@@ -18,7 +18,7 @@ import { UseAuthGuard } from '../auth/auth.guard';
 import { Roles } from '../roles/roles.decorator';
 import { UserRoles } from '../roles/roles.enum';
 import { ApiTags } from '@nestjs/swagger';
-import { getProjectTasks } from 'src/utils/airtable-helpers';
+import { getProjectTasks } from 'src/services/airtable';
 import { getBase64MimeTypeAndValue } from 'src/utils/string-helper';
 import { createDriveFile } from 'src/services/googleapi';
 
@@ -94,13 +94,25 @@ export class CustomersController {
 
 		const results = [];
 		for (const proj of customer.projects) {
-			const tasks = await getProjectTasks(proj.airtableUrl);
-			results.push({ ...proj, tasks });
+			const totalTasks = {
+				todo: 0,
+				doing: 0,
+				done: 0,
+				total: 0,
+			};
+			for (const link of proj.airtableLinks) {
+				const tasks = await getProjectTasks(link.url);
+				totalTasks.todo = totalTasks.todo + tasks.todo;
+				totalTasks.doing = totalTasks.doing + tasks.doing;
+				totalTasks.done = totalTasks.done + tasks.done;
+				totalTasks.total = totalTasks.total + tasks.total;
+			}
+			results.push({ ...proj, tasks: totalTasks });
 		}
 
 		return {
 			...customer,
-			projects: results,
+			projects: results.map(p => ({ ...p, airtableLinks: undefined })),
 			updatedAt: undefined,
 			deletedAt: undefined,
 		};

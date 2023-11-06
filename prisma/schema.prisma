@@ -64,7 +64,7 @@ model Project {
   description       String        @db.Text
   accountable       String        @db.VarChar(255)
   value             Float         @db.Double
-  airtableUrl       String        @db.VarChar(255)
+  airtableUrl       String?       @db.VarChar(255)
   airtableIframeUrl String        @db.VarChar(255)
   driveFolderId     String        @db.VarChar(255)
   status            ProjectStatus @default(PENDING)
@@ -76,6 +76,7 @@ model Project {
 
   collaborators Collaborator[]
   customer      Customer?      @relation(fields: [idCustomer], references: [id])
+  airtableLinks AirtableLink[]
 
   @@map("projects")
 }
@@ -91,4 +92,14 @@ model Collaborator {
 
   @@index([idProject, email])
   @@map("collaborators")
+}
+
+model AirtableLink {
+  id        Int    @id @default(autoincrement())
+  idProject Int
+  url       String @db.VarChar(255)
+
+  project Project @relation(fields: [idProject], references: [id])
+
+  @@map("airtable_links")
 }

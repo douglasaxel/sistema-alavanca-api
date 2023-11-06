@@ -54,7 +54,11 @@ export class CustomersService {
 		const customer = await this.prismaService.customer.findUnique({
 			where: { id, deletedAt: null },
 			include: {
-				projects: true,
+				projects: {
+					include: {
+						airtableLinks: true,
+					},
+				},
 			},
 		});
 

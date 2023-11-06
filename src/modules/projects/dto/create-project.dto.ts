@@ -3,13 +3,24 @@ import { Transform, Type } from 'class-transformer';
 import {
 	IsArray,
 	IsDate,
+	IsEmpty,
 	IsNotEmpty,
 	IsNumber,
 	IsString,
 	IsUrl,
+	Min,
 	ValidateNested,
+	IsOptional,
+	ArrayMinSize,
 } from 'class-validator';
 import { CreateCollaboratorDto } from './create-collaborator.dto';
+
+class CreateAirtableLink {
+	@IsUrl()
+	@IsNotEmpty({ message: 'A URL do airtable não pode ser vazia' })
+	@ApiProperty()
+	public url: string;
+}
 
 export class CreateProjectDto {
 	@IsString()
@@ -46,9 +57,16 @@ export class CreateProjectDto {
 
 	@IsString()
 	@IsUrl()
-	@IsNotEmpty({ message: 'A URL do AirTable não pode ser vazio' })
-	@ApiProperty()
+	@IsOptional()
+	// @IsNotEmpty({ message: 'A URL do AirTable não pode ser vazio' })
+	@ApiProperty({ deprecated: true })
 	public airtableUrl: string;
+
+	@IsArray()
+	@ValidateNested({ each: true })
+	@ArrayMinSize(1, { message: 'Adicione pelo menos um link do Airtable' })
+	@Type(() => CreateAirtableLink)
+	public airtableLinks: CreateAirtableLink[];
 
 	@IsString()
 	@IsUrl()
