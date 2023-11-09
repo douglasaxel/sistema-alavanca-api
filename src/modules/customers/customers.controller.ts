@@ -128,10 +128,23 @@ export class CustomersController {
 			throw new NotFoundException(['Este cliente não existe']);
 		}
 
-		const updatedCustomer = await this.customersService.update(
-			id,
-			updateCustomerDto,
-		);
+		let image: string | undefined = undefined;
+		if (updateCustomerDto.image.includes('base64')) {
+			const { base64, mimeType } = getBase64MimeTypeAndValue(
+				updateCustomerDto.image,
+			);
+			image = await createDriveFile({
+				fileBase64: base64,
+				name: updateCustomerDto.name,
+				type: 'customer',
+				mimeType,
+			});
+		}
+
+		const updatedCustomer = await this.customersService.update(id, {
+			...updateCustomerDto,
+			image,
+		});
 
 		return {
 			...updatedCustomer,
