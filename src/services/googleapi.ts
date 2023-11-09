@@ -42,7 +42,7 @@ export async function listDriveFiles(folderId: string) {
 	const res = await drive.files.list({
 		fields:
 			'files(id, name, fileExtension, mimeType, webViewLink, iconLink, thumbnailLink)',
-		q: `'${folderId}' in parents`,
+		q: `'${folderId}' in parents and trashed = false`,
 	});
 	const files = res.data.files;
 
