@@ -73,6 +73,7 @@ export class CustomersService {
 					include: {
 						airtableLinks: true,
 					},
+					orderBy: { name:'asc' },
 				},
 			},
 		});

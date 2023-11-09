@@ -52,6 +52,7 @@ export class ProjectsService {
 				airtableLinks: true,
 				collaborators,
 			},
+			orderBy: { name:'asc' },
 		});
 	}
 
