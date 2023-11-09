@@ -52,6 +52,9 @@ export class CustomersService {
 				_count: true,
 				contacts: true,
 			},
+			orderBy: {
+				name: 'asc',
+			},
 		});
 
 		return customers.map(customer => ({

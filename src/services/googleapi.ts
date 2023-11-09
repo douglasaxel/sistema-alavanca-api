@@ -40,7 +40,8 @@ export async function listDriveFiles(folderId: string) {
 	const authClient = await authorize();
 	const drive = google.drive({ version: 'v3', auth: authClient });
 	const res = await drive.files.list({
-		fields: 'files(id, name, fileExtension, mimeType, webViewLink, iconLink)',
+		fields:
+			'files(id, name, fileExtension, mimeType, webViewLink, iconLink, thumbnailLink)',
 		q: `'${folderId}' in parents`,
 	});
 	const files = res.data.files;
@@ -57,7 +58,7 @@ export async function createDriveFolder(folderName: string) {
 			name: folderName,
 			mimeType: 'application/vnd.google-apps.folder',
 			parents: [
-				'1g69Ixhuz_ekuDfBwd4M6sv_Dj1HNZeUO', // Pasta: Sistema Alavanca
+				process.env.GOOGLE_BASE_FOLDER, // Pasta: Sistema Alavanca
 			],
 		},
 		fields: 'id',
@@ -94,11 +95,9 @@ export async function createDriveFile({
 		requestBody: {
 			name: `${randomBytes(8).toString('hex')} - ${name}`,
 			parents: [
-				// '1g69Ixhuz_ekuDfBwd4M6sv_Dj1HNZeUO', // Pasta: Sistema Alavanca
-				// '1ISbp6BA4bLxM57pTDR3RJabz4jAQs-n2', // Pasta: Imagens
 				type === 'user'
-					? '1SycjKjUo2RwfOFO2ZHSGRbwnaBdJ6b5p' // Pasta: Usuários
-					: '1H68ALlZTsrPrbaDIUXRkOlUsM6CdScyt', // Pasta: Clientes
+					? process.env.GOOGLE_USERS_FOLDER // Pasta: Usuários
+					: process.env.GOOGLE_CUSTOMERS_FOLDER, // Pasta: Clientes
 			],
 		},
 		fields: 'id',
