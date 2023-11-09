@@ -20,6 +20,7 @@ export class CustomersService {
 		accountable,
 		email,
 		phone,
+		contacts,
 	}: CreateCustomerDto) {
 		const customer = await this.prismaService.customer.create({
 			data: {
@@ -29,6 +30,15 @@ export class CustomersService {
 				accountable,
 				email,
 				phone,
+				contacts: {
+					createMany: {
+						data: contacts.map(c => ({
+							name: c.name,
+							email: c.email,
+							phone: c.phone,
+						})),
+					},
+				},
 			},
 		});
 
@@ -40,6 +50,7 @@ export class CustomersService {
 			where: { deletedAt: null },
 			include: {
 				_count: true,
+				contacts: true,
 			},
 		});
 
@@ -54,6 +65,7 @@ export class CustomersService {
 		const customer = await this.prismaService.customer.findUnique({
 			where: { id, deletedAt: null },
 			include: {
+				contacts: true,
 				projects: {
 					include: {
 						airtableLinks: true,
@@ -84,9 +96,17 @@ export class CustomersService {
 
 	async update(
 		id: number,
-		{ image, name, cnpj, accountable, email, phone }: UpdateCustomerDto,
+		{
+			image,
+			name,
+			cnpj,
+			accountable,
+			email,
+			phone,
+			contacts,
+		}: UpdateCustomerDto,
 	) {
-		const customer = await this.prismaService.customer.update({
+		const customer = this.prismaService.customer.update({
 			where: { id, deletedAt: null },
 			data: {
 				image,
@@ -98,7 +118,24 @@ export class CustomersService {
 			},
 		});
 
-		return customer;
+		const clearContacts = this.prismaService.contact.deleteMany({
+			where: { idCustomer: id },
+		});
+
+		const addContacts = this.prismaService.contact.createMany({
+			data: contacts.map(c => ({
+				...c,
+				idCustomer: id,
+			})),
+		});
+
+		const [customerRes] = await this.prismaService.$transaction([
+			customer,
+			clearContacts,
+			addContacts,
+		]);
+
+		return customerRes;
 	}
 
 	async remove(id: number) {

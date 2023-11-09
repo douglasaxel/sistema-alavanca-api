@@ -89,5 +89,6 @@ export class CreateProjectDto {
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => CreateCollaboratorDto)
+	@ApiProperty()
 	public collaborators: CreateCollaboratorDto[];
 }

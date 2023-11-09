@@ -35,8 +35,8 @@ model Customer {
   id          Int       @id @default(autoincrement())
   image       String    @db.VarChar(255)
   name        String    @db.VarChar(255)
-  phone       String    @unique @db.VarChar(255)
-  email       String    @unique @db.VarChar(255)
+  phone       String?   @unique @db.VarChar(255)
+  email       String?   @unique @db.VarChar(255)
   cnpj        String    @unique @db.VarChar(255)
   accountable String    @db.VarChar(255)
   createdAt   DateTime  @default(now())
@@ -44,9 +44,23 @@ model Customer {
   deletedAt   DateTime?
 
   projects Project[]
+  contacts Contact[]
 
-  @@index([cnpj, email, phone])
+  @@index([cnpj])
   @@map("customers")
+}
+
+model Contact {
+  id         Int      @id @default(autoincrement())
+  idCustomer Int
+  name       String   @db.VarChar(255)
+  email      String   @db.VarChar(255)
+  phone      String   @db.VarChar(255)
+  createdAt  DateTime @default(now())
+
+  customer Customer @relation(fields: [idCustomer], references: [id])
+
+  @@map("contacts")
 }
 
 enum ProjectStatus {

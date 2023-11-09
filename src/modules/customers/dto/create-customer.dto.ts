@@ -1,14 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
 	IsEmail,
 	IsNotEmpty,
 	IsPhoneNumber,
 	IsString,
 	Validate,
+	IsArray,
+	ValidateNested,
+	ArrayMinSize,
+	IsOptional,
 } from 'class-validator';
 import { ValidateCNPJ } from 'src/class-validator/ValidateCNPJ';
 import { getNumbersFromString } from 'src/utils/string-helper';
+import { CreateContactDto } from './create-contact.dto';
 
 export class CreateCustomerDto {
 	@IsString()
@@ -26,20 +31,16 @@ export class CreateCustomerDto {
 	public name: string;
 
 	@IsString()
-	@IsNotEmpty({
-		message: 'O telefone não pode ser vazio',
-	})
 	@IsPhoneNumber('BR')
+	@IsOptional()
 	@Transform(({ value }) => getNumbersFromString(value))
-	@ApiProperty()
+	@ApiProperty({ deprecated: true })
 	public phone: string;
 
 	@IsString()
-	@IsNotEmpty({
-		message: 'O e-mail não pode ser vazio',
-	})
 	@IsEmail()
-	@ApiProperty()
+	@IsOptional()
+	@ApiProperty({ deprecated: true })
 	public email: string;
 
 	@IsString()
@@ -57,4 +58,11 @@ export class CreateCustomerDto {
 	})
 	@ApiProperty()
 	public accountable: string;
+
+	@IsArray({ message: '`contacts` deve ser um vetor' })
+	@ValidateNested({ each: true })
+	@ArrayMinSize(1, { message: 'O cliente deve ter no mínimo 1 contato' })
+	@Type(() => CreateContactDto)
+	@ApiProperty()
+	public contacts: CreateContactDto[];
 }
