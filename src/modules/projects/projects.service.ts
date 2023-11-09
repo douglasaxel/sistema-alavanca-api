@@ -75,6 +75,12 @@ export class ProjectsService {
 						email: true,
 					},
 				},
+				airtableLinks: {
+					select: {
+						id: true,
+						url: true,
+					},
+				},
 			},
 		});
 	}

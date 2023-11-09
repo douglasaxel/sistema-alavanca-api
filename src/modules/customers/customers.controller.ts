@@ -21,6 +21,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { getProjectTasks } from 'src/services/airtable';
 import { getBase64MimeTypeAndValue } from 'src/utils/string-helper';
 import { createDriveFile } from 'src/services/googleapi';
+import { getProjectSituation } from 'src/utils/get-project-situation';
 
 @ApiTags('Customers')
 @UseAuthGuard()
@@ -107,7 +108,15 @@ export class CustomersController {
 				totalTasks.done = totalTasks.done + tasks.done;
 				totalTasks.total = totalTasks.total + tasks.total;
 			}
-			results.push({ ...proj, tasks: totalTasks });
+			const situation = getProjectSituation({
+				startDate: proj.startDate.toISOString(),
+				endDate: proj.endDate.toISOString(),
+				tasks: {
+					total: totalTasks.total,
+					done: totalTasks.done,
+				}
+			})
+			results.push({ ...proj, situation, tasks: totalTasks });
 		}
 
 		return {

@@ -29,6 +29,7 @@ import { ApiNoContentResponse } from '@nestjs/swagger';
 import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
 import { Roles } from '../roles/roles.decorator';
 import { UserRoles } from '../roles/roles.enum';
+import { getProjectSituation } from 'src/utils/get-project-situation';
 
 @Roles(UserRoles.ADMIN, UserRoles.MASTER, UserRoles.CUSTOMER, UserRoles.BASIC)
 @Controller('projects')
@@ -92,7 +93,16 @@ export class ProjectsController {
 				totalTasks.done = totalTasks.done + tasks.done;
 				totalTasks.total = totalTasks.total + tasks.total;
 			}
-			results.push({ ...proj, tasks: totalTasks });
+			const situation = getProjectSituation({
+				startDate: proj.startDate.toISOString(),
+				endDate: proj.endDate.toISOString(),
+				tasks: {
+					total: totalTasks.total,
+					done: totalTasks.done,
+				}
+			})
+
+			results.push({ ...proj, situation, tasks: totalTasks });
 		}
 
 		return results.map(p => ({ ...p, airtableLinks: undefined }));
@@ -107,15 +117,38 @@ export class ProjectsController {
 
 		excludeKeyFromObj(project, ['deletedAt']);
 
-		const tasks = await getProjectTasks(project.airtableUrl);
 		const googleFiles = await listDriveFiles(project.driveFolderId);
 		const googleCalendar = await listCalendarEvents(project.name);
 
+		const totalTasks = {
+			todo: 0,
+			doing: 0,
+			done: 0,
+			total: 0,
+		};
+		for (const link of project.airtableLinks) {
+			const tasks = await getProjectTasks(link.url);
+			totalTasks.todo = totalTasks.todo + tasks.todo;
+			totalTasks.doing = totalTasks.doing + tasks.doing;
+			totalTasks.done = totalTasks.done + tasks.done;
+			totalTasks.total = totalTasks.total + tasks.total;
+		}
+
+		const situation = getProjectSituation({
+			startDate: project.startDate.toISOString(),
+			endDate: project.endDate.toISOString(),
+			tasks: {
+				total: totalTasks.total,
+				done: totalTasks.done,
+			}
+		})
+
 		return {
 			...project,
-			tasks,
+			tasks: totalTasks,
 			googleFiles,
 			googleCalendar,
+			situation,
 		};
 	}
 
