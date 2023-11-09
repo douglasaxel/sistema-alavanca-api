@@ -28,6 +28,7 @@ export class UsersService {
 	async findAll() {
 		const users = await this.prismaService.user.findMany({
 			where: { deletedAt: null },
+			orderBy: { name: 'asc' },
 		});
 
 		return users;
