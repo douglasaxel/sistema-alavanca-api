@@ -40,9 +40,27 @@ function parseTasks(tasks: Record<string, number>) {
 	return { todo, doing, done, total };
 }
 
-export async function getProjectTasks(airtableUrl: string) {
-	const ids = parseAirtableUrl(airtableUrl);
-	const result = await getDataAirtable(ids.appId, ids.tableId);
+type GetAritableTasksResponse = {
+	total: number;
+	todo: number;
+	doing: number;
+	done: number;
+};
 
-	return parseTasks(result);
+export async function getProjectTasks(
+	airtableUrl: string,
+): Promise<GetAritableTasksResponse> {
+	try {
+		const ids = parseAirtableUrl(airtableUrl);
+		const result = await getDataAirtable(ids.appId, ids.tableId);
+		return parseTasks(result);
+	} catch (err) {
+		console.error('airtable', err);
+		return {
+			total: 0,
+			todo: 0,
+			doing: 0,
+			done: 0,
+		};
+	}
 }
