@@ -138,7 +138,7 @@ export class CustomersController {
 		}
 
 		let image: string | undefined = undefined;
-		if (updateCustomerDto.image.includes('base64')) {
+		if (updateCustomerDto.image?.includes('base64')) {
 			const { base64, mimeType } = getBase64MimeTypeAndValue(
 				updateCustomerDto.image,
 			);

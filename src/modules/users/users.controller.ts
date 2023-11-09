@@ -91,7 +91,23 @@ export class UsersController {
 			throw new NotFoundException(['Este usuário não existe']);
 		}
 
-		const user = await this.usersService.update(id, updateUserDto);
+		let image: string | undefined = undefined;
+		if (updateUserDto.image?.includes('base64')) {
+			const { base64, mimeType } = getBase64MimeTypeAndValue(
+				updateUserDto.image,
+			);
+			image = await createDriveFile({
+				fileBase64: base64,
+				name: updateUserDto.name,
+				type: 'user',
+				mimeType,
+			});
+		}
+
+		const user = await this.usersService.update(id, {
+			...updateUserDto,
+			image,
+		});
 
 		return {
 			id: user.id,
