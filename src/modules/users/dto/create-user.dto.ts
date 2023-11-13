@@ -1,6 +1,6 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
-import { IsBase64, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { UserRoles } from '../../roles/roles.enum';
 
 export class CreateUserDto extends OmitType(User, ['id']) {

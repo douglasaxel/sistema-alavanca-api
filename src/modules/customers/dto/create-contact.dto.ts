@@ -18,7 +18,7 @@ export class CreateContactDto {
 	@IsNotEmpty({
 		message: 'O telefone não pode ser vazio',
 	})
-	@IsPhoneNumber('BR')
+	@IsPhoneNumber('BR', { message: 'O telefone deve ser válido' })
 	@Transform(({ value }) => getNumbersFromString(value))
 	@ApiProperty()
 	public phone: string;

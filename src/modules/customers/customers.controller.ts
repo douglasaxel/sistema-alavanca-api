@@ -37,16 +37,8 @@ export class CustomersController {
 			email: createCustomerDto.email,
 			phone: createCustomerDto.phone,
 		});
-		if (createCustomerDto.email.includes(exist?.email)) {
-			throw new BadRequestException(['E-mail já está em uso']);
-		}
-
 		if (createCustomerDto.cnpj.includes(exist?.cnpj)) {
 			throw new BadRequestException(['CNPJ já cadastrado']);
-		}
-
-		if (createCustomerDto.phone.includes(exist?.phone)) {
-			throw new BadRequestException(['Telefone já cadastrado']);
 		}
 
 		const { base64, mimeType } = getBase64MimeTypeAndValue(
@@ -114,8 +106,8 @@ export class CustomersController {
 				tasks: {
 					total: totalTasks.total,
 					done: totalTasks.done,
-				}
-			})
+				},
+			});
 			results.push({ ...proj, situation, tasks: totalTasks });
 		}
 

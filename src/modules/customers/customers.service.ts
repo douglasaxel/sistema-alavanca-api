@@ -21,6 +21,7 @@ export class CustomersService {
 		email,
 		phone,
 		contacts,
+		addresses,
 	}: CreateCustomerDto) {
 		const customer = await this.prismaService.customer.create({
 			data: {
@@ -32,11 +33,12 @@ export class CustomersService {
 				phone,
 				contacts: {
 					createMany: {
-						data: contacts.map(c => ({
-							name: c.name,
-							email: c.email,
-							phone: c.phone,
-						})),
+						data: contacts,
+					},
+				},
+				addresses: {
+					createMany: {
+						data: addresses,
 					},
 				},
 			},
@@ -51,6 +53,7 @@ export class CustomersService {
 			include: {
 				_count: true,
 				contacts: true,
+				addresses: true,
 			},
 			orderBy: {
 				name: 'asc',
@@ -69,11 +72,12 @@ export class CustomersService {
 			where: { id, deletedAt: null },
 			include: {
 				contacts: true,
+				addresses: true,
 				projects: {
 					include: {
 						airtableLinks: true,
 					},
-					orderBy: { name:'asc' },
+					orderBy: { name: 'asc' },
 				},
 			},
 		});
@@ -108,6 +112,7 @@ export class CustomersService {
 			email,
 			phone,
 			contacts,
+			addresses,
 		}: UpdateCustomerDto,
 	) {
 		const customer = this.prismaService.customer.update({
@@ -133,10 +138,23 @@ export class CustomersService {
 			})),
 		});
 
+		const clearAddresses = this.prismaService.address.deleteMany({
+			where: { idCustomer: id },
+		});
+
+		const addAddress = this.prismaService.address.createMany({
+			data: addresses.map(a => ({
+				...a,
+				idCustomer: id,
+			})),
+		});
+
 		const [customerRes] = await this.prismaService.$transaction([
 			customer,
 			clearContacts,
 			addContacts,
+			clearAddresses,
+			addAddress,
 		]);
 
 		return customerRes;

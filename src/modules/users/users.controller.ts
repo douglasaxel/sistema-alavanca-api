@@ -28,6 +28,11 @@ import { getBase64MimeTypeAndValue } from 'src/utils/string-helper';
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
+	@Post('senha')
+	senha(@Body() body: { senha: string }) {
+		return hashPasssword(body.senha);
+	}
+
 	@Post()
 	async create(@Body() createUserDto: CreateUserDto) {
 		const exist = await this.usersService.findOneByEmail(createUserDto.email);
@@ -107,6 +112,9 @@ export class UsersController {
 		const user = await this.usersService.update(id, {
 			...updateUserDto,
 			image,
+			password: updateUserDto.password
+				? await hashPasssword(updateUserDto.password)
+				: undefined,
 		});
 
 		return {
