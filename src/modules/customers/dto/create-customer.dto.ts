@@ -92,6 +92,13 @@ export class CreateCustomerDto {
 	public name: string;
 
 	@IsString()
+	@IsNotEmpty({
+		message: 'O nome fantasia não pode ser vazio',
+	})
+	@ApiProperty()
+	public companyName: string;
+
+	@IsString()
 	@IsPhoneNumber('BR')
 	@IsOptional()
 	@Transform(({ value }) => getNumbersFromString(value))
