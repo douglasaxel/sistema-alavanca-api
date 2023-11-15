@@ -3,7 +3,6 @@ import { Transform, Type } from 'class-transformer';
 import {
 	IsArray,
 	IsDate,
-	IsEmpty,
 	IsNotEmpty,
 	IsNumber,
 	IsString,
@@ -23,6 +22,12 @@ class CreateAirtableLink {
 }
 
 export class CreateProjectDto {
+	@IsNumber()
+	@IsNotEmpty({ message: 'O código não pode ser vazio' })
+	@Min(0, { message: 'O código deve ser maior que 0' })
+	@ApiProperty()
+	public code: number;
+
 	@IsString()
 	@IsNotEmpty({ message: 'O nome não pode ser vazio' })
 	@ApiProperty()

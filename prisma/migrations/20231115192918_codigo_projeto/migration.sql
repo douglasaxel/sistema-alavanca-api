@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `projects` ADD COLUMN `code` INTEGER NOT NULL DEFAULT 0;

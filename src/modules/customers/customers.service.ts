@@ -13,24 +13,10 @@ type IFindOneByUniqueKeysParams = {
 export class CustomersService {
 	constructor(private prismaService: PrismaService) {}
 
-	async create({
-		image,
-		name,
-		cnpj,
-		accountable,
-		email,
-		phone,
-		contacts,
-		addresses,
-	}: CreateCustomerDto) {
+	async create({ contacts, addresses, ...createCustomer }: CreateCustomerDto) {
 		const customer = await this.prismaService.customer.create({
 			data: {
-				image,
-				name,
-				cnpj,
-				accountable,
-				email,
-				phone,
+				...createCustomer,
 				contacts: {
 					createMany: {
 						data: contacts,
@@ -77,7 +63,7 @@ export class CustomersService {
 					include: {
 						airtableLinks: true,
 					},
-					orderBy: { name: 'asc' },
+					orderBy: [{ code: 'asc' }, { name: 'asc' }],
 				},
 			},
 		});

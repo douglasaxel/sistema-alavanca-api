@@ -93,9 +93,8 @@ enum ProjectStatus {
 model Project {
   id                Int           @id @default(autoincrement())
   idCustomer        Int?
+  code              Int           @default(0)
   name              String        @db.VarChar(255)
-  // corporateName String        @db.VarChar(255)
-  // cnpj        String        @unique @db.VarChar(30)
   description       String        @db.Text
   accountable       String        @db.VarChar(255)
   value             Float         @db.Double
