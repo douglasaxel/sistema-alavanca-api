@@ -129,7 +129,7 @@ export class CreateCustomerDto {
 
 	@IsArray({ message: '`contacts` deve ser um vetor' })
 	@ValidateNested({ each: true })
-	@ArrayMinSize(1, { message: 'O cliente deve ter no mínimo 1 contato' })
+	// @ArrayMinSize(1, { message: 'O cliente deve ter no mínimo 1 contato' })
 	@Type(() => CreateContactDto)
 	@ApiProperty()
 	public contacts: CreateContactDto[];

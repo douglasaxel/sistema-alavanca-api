@@ -99,8 +99,8 @@ export class ProjectsController {
 				tasks: {
 					total: totalTasks.total,
 					done: totalTasks.done,
-				}
-			})
+				},
+			});
 
 			results.push({ ...proj, situation, tasks: totalTasks });
 		}
@@ -140,8 +140,8 @@ export class ProjectsController {
 			tasks: {
 				total: totalTasks.total,
 				done: totalTasks.done,
-			}
-		})
+			},
+		});
 
 		return {
 			...project,
