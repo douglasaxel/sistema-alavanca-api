@@ -31,21 +31,22 @@ import { Roles } from '../roles/roles.decorator';
 import { UserRoles } from '../roles/roles.enum';
 import { getProjectSituation } from 'src/utils/get-project-situation';
 
-@Roles(UserRoles.ADMIN, UserRoles.MASTER, UserRoles.CUSTOMER, UserRoles.BASIC)
 @Controller('projects')
 export class ProjectsController {
 	constructor(private readonly projectsService: ProjectsService) {}
 
+	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 	@Post()
 	async create(@Body() createProjectDto: CreateProjectDto) {
 		const driverFolderId = await createDriveFolder(createProjectDto.name);
 		await copyFilesToNewFolder(
-			process.env.GOOGLE_DEFAULT_FILES_FOLDER, // '1cURb4T_Tlnz8RVDaOut9IYsBzVmlwa3z', // Pasta: Arquivos padrão
+			process.env.GOOGLE_DEFAULT_FILES_FOLDER,
 			driverFolderId,
 		);
 		return this.projectsService.create(createProjectDto, driverFolderId);
 	}
 
+	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 	@ApiNoContentResponse()
 	@Post(':id/event')
 	async createEvent(
@@ -74,6 +75,7 @@ export class ProjectsController {
 		return null;
 	}
 
+	@Roles(UserRoles.ADMIN, UserRoles.MASTER, UserRoles.CUSTOMER, UserRoles.BASIC)
 	@Get()
 	async findAll(@Query() findAllProjectDto: FindAllProjectDto) {
 		const projects = await this.projectsService.findAll(findAllProjectDto);
@@ -108,6 +110,7 @@ export class ProjectsController {
 		return results.map(p => ({ ...p, airtableLinks: undefined }));
 	}
 
+	@Roles(UserRoles.ADMIN, UserRoles.MASTER, UserRoles.CUSTOMER, UserRoles.BASIC)
 	@Get(':id')
 	async findOne(@Param('id') id: string) {
 		const project = await this.projectsService.findOne(+id);
@@ -149,14 +152,21 @@ export class ProjectsController {
 			googleFiles,
 			googleCalendar,
 			situation,
+			airtableUrl: undefined,
+			deletedAt: undefined,
 		};
 	}
 
+	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 	@Patch(':id')
 	update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
+		if (isNaN(+id)) {
+			throw new BadRequestException(['O id do projeto não é valido']);
+		}
 		return this.projectsService.update(+id, updateProjectDto);
 	}
 
+	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 	@Put(':id/collaborators')
 	async addCollaborators(
 		@Param('id') id: number,
@@ -165,6 +175,7 @@ export class ProjectsController {
 		return this.projectsService.createCollaborators(id, createCollaboratorDto);
 	}
 
+	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 	@ApiNoContentResponse()
 	@Delete(':id/collaborators/:idCollaborator')
 	async removeCollaborators(
@@ -175,6 +186,7 @@ export class ProjectsController {
 		return null;
 	}
 
+	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 	@Delete(':id')
 	remove(@Param('id') id: string) {
 		return this.projectsService.remove(+id);

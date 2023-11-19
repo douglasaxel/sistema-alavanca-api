@@ -86,15 +86,55 @@ export class ProjectsService {
 		});
 	}
 
-	update(id: number, updateData: UpdateProjectDto) {
-		return this.prismaService.project.update({
-			where: { id, deletedAt: null },
-			data: {
-				...updateData,
-				collaborators: undefined,
-				airtableLinks: undefined,
-			},
-		});
+	async update(
+		id: number,
+		{ collaborators, airtableLinks, ...updateData }: UpdateProjectDto,
+	) {
+		const transactions = [];
+		transactions.push(
+			this.prismaService.project.update({
+				where: { id, deletedAt: null },
+				data: {
+					...updateData,
+					collaborators: undefined,
+					airtableLinks: undefined,
+				},
+			}),
+		);
+
+		if (collaborators.length > 0) {
+			transactions.push(
+				this.prismaService.collaborator.deleteMany({
+					where: { idProject: id },
+				}),
+			);
+			transactions.push(
+				this.prismaService.collaborator.createMany({
+					data: collaborators.map(c => ({
+						...c,
+						idProject: id,
+					})),
+				}),
+			);
+		}
+
+		if (airtableLinks.length > 0) {
+			transactions.push(
+				this.prismaService.airtableLink.deleteMany({
+					where: { idProject: id },
+				}),
+			);
+			transactions.push(
+				this.prismaService.airtableLink.createMany({
+					data: airtableLinks.map(a => ({
+						idProject: id,
+						url: a.url,
+					})),
+				}),
+			);
+		}
+
+		await this.prismaService.$transaction(transactions);
 	}
 
 	async createCollaborators(id: number, collaborator: CreateCollaboratorDto) {
