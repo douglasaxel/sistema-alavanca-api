@@ -111,6 +111,7 @@ model Project {
   collaborators Collaborator[]
   customer      Customer?      @relation(fields: [idCustomer], references: [id])
   airtableLinks AirtableLink[]
+  messages      Message[]
 
   @@map("projects")
 }
@@ -136,4 +137,18 @@ model AirtableLink {
   project Project @relation(fields: [idProject], references: [id])
 
   @@map("airtable_links")
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  idProject  Int
+  message    String   @db.LongText
+  sender     String   @db.VarChar(255)
+  sentDate   DateTime
+  attachment String?  @map("attatchment") @db.TinyText
+  createdAt  DateTime @default(now())
+
+  project Project @relation(fields: [idProject], references: [id])
+
+  @@map("messages")
 }

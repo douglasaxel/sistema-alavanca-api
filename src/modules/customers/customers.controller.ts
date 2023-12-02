@@ -22,7 +22,6 @@ import { getProjectTasks } from 'src/services/airtable';
 import { getBase64MimeTypeAndValue } from 'src/utils/string-helper';
 import { createDriveFile } from 'src/services/googleapi';
 import { getProjectSituation } from 'src/utils/get-project-situation';
-import { messages } from 'src/utils/messages.teste';
 
 @ApiTags('Customers')
 @UseAuthGuard()
@@ -71,25 +70,6 @@ export class CustomersController {
 	@Post(':id/upload-file')
 	async uploadFile(@Param('id') id: string, @Body() file: any) {
 		return { id, file };
-	}
-
-	@Get('messages')
-	async function() {
-		return messages
-			.match(/(\d{2}\/\d{2}\/\d{4}\s{1}\d{2}:\d{2}\s-\s)(.*)/g)
-			.map(m => {
-				const [sentDate, unparsedMessage] = m
-					.split(/(\d{2}\/\d{2}\/\d{4}\s{1}\d{2}:\d{2}\s-\s)/)
-					.filter(Boolean);
-
-				const [sender, message] = unparsedMessage.split(/:\s/);
-
-				return {
-					sentDate: sentDate.replace(' - ', ''),
-					sender,
-					message,
-				};
-			});
 	}
 
 	@Get()

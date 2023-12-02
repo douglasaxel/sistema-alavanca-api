@@ -85,3 +85,11 @@ export function mediaBetweenDates(date1: IDateParam, date2: IDateParam) {
 
 	return result > 100 ? 100 : result;
 }
+
+export function brDateTimeToEn(stringDate: string) {
+	const [day, month, yearTime] = stringDate.split('/');
+	const [year, time] = yearTime.split(' ');
+
+	const date = new Date(`${year}-${month}-${day}T${time}:00`);
+	return date;
+}

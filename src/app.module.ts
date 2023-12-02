@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { JwtModule } from '@nestjs/jwt';
 import { CustomersModule } from './modules/customers/customers.module';
 import { ProjectsModule } from './modules/projects/projects.module';
+import { MessagesModule } from './modules/messages/messages.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
 		}),
 		CustomersModule,
 		ProjectsModule,
+		MessagesModule,
 	],
 	controllers: [],
 	providers: [],

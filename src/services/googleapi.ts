@@ -36,13 +36,15 @@ async function authorize() {
 	return jwtClient;
 }
 
-export async function listDriveFiles(folderId: string) {
+export async function listDriveFiles(folderId: string, query?: string) {
 	const authClient = await authorize();
 	const drive = google.drive({ version: 'v3', auth: authClient });
 	const res = await drive.files.list({
 		fields:
 			'files(id, name, fileExtension, mimeType, webViewLink, iconLink, thumbnailLink)',
-		q: `'${folderId}' in parents and trashed = false`,
+		q: `'${folderId}' in parents and trashed = false${
+			!query ? '' : ` and ${query}`
+		}`,
 	});
 	const files = res.data.files;
 
@@ -59,6 +61,16 @@ export async function createDriveFolder(folderName: string) {
 			mimeType: 'application/vnd.google-apps.folder',
 			parents: [
 				process.env.GOOGLE_BASE_FOLDER, // Pasta: Sistema Alavanca
+			],
+		},
+		fields: 'id',
+	});
+	await drive.files.create({
+		requestBody: {
+			name: 'conversa',
+			mimeType: 'application/vnd.google-apps.folder',
+			parents: [
+				folder.data.id, // Pasta do projeto
 			],
 		},
 		fields: 'id',
