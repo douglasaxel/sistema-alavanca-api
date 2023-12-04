@@ -24,12 +24,21 @@ export class MessagesController {
 	) {}
 
 	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
-	@Post()
+	@Post(':idProject')
 	async create(
+		@Param('idProject') idProject: number,
 		@Body('text') text: string,
-		@Query() { idProject }: CreateMessageDto,
 	) {
-		const project = await this.projectsService.findOne(idProject);
+		if (isNaN(+idProject)) {
+			throw new BadRequestException(['O id do projeto é inválido'])
+		}
+		const messages = parseMessagesToJson(text);
+
+		if (messages.length === 0) {
+			throw new BadRequestException(['Não foi possível extrair a conversa a partir deste arquivo'])
+		}
+
+		const project = await this.projectsService.findOne(+idProject);
 		if (!project) {
 			throw new NotFoundException(['Este projeto não existe']);
 		}
@@ -47,7 +56,6 @@ export class MessagesController {
 		}
 
 		const messageDriveFiles = await listDriveFiles(messagesFolder.id);
-		const messages = parseMessagesToJson(text);
 
 		for (const message of messages) {
 			if (message.attachment) {

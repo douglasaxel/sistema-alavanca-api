@@ -151,7 +151,7 @@ export class ProjectsController {
 		return {
 			...project,
 			tasks: totalTasks,
-			googleFiles,
+			googleFiles: googleFiles.filter(gf => !gf.name?.includes('conversa')),
 			googleCalendar,
 			situation,
 			airtableUrl: undefined,

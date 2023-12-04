@@ -29,9 +29,21 @@ export class MessagesService {
 		});
 	}
 
-	listProjectMessages(idProject: number) {
-		return this.prismaService.message.findMany({
+	async listProjectMessages(idProject: number) {
+		const messages = await this.prismaService.message.findMany({
 			where: { idProject }
 		})
+		const groupMessages: Record<string, typeof messages> = {};
+
+		messages.forEach(message => {
+			const key = message.createdAt.toISOString().substring(0, 10);
+
+				groupMessages[key] = [
+					...(groupMessages[key] ?? []),
+					message,
+				]
+		})
+
+		return groupMessages
 	}
 }
