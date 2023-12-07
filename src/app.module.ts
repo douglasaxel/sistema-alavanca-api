@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { CustomersModule } from './modules/customers/customers.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { MessagesModule } from './modules/messages/messages.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
 	imports: [
@@ -21,6 +22,10 @@ import { MessagesModule } from './modules/messages/messages.module';
 		CustomersModule,
 		ProjectsModule,
 		MessagesModule,
+		CacheModule.register({
+			isGlobal: true,
+			ttl: 1 * 60 * 60 * 1000,
+		}),
 	],
 	controllers: [],
 	providers: [],

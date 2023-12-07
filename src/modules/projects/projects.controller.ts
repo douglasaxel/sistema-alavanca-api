@@ -10,6 +10,7 @@ import {
 	NotFoundException,
 	BadRequestException,
 	Put,
+	Inject,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -30,12 +31,22 @@ import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
 import { Roles } from '../roles/roles.decorator';
 import { UserRoles } from '../roles/roles.enum';
 import { getProjectSituation } from 'src/utils/get-project-situation';
-import { parseMessagesToJson } from 'src/utils/string-helper';
-import { messages } from 'src/utils/messages.teste';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+
+type ICacheProjectTask = {
+	todo: number;
+	doing: number;
+	done: number;
+	total: number;
+};
 
 @Controller('projects')
 export class ProjectsController {
-	constructor(private readonly projectsService: ProjectsService) {}
+	constructor(
+		private readonly projectsService: ProjectsService,
+		@Inject(CACHE_MANAGER) private cacheManager: Cache,
+	) {}
 
 	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 	@Post()
@@ -81,21 +92,29 @@ export class ProjectsController {
 	@Get()
 	async findAll(@Query() findAllProjectDto: FindAllProjectDto) {
 		const projects = await this.projectsService.findAll(findAllProjectDto);
-
 		const results = [];
+
 		for (const proj of projects) {
-			const totalTasks = {
+			const cachedTasks: ICacheProjectTask = await this.cacheManager.get(
+				`project-tasks-[${proj.id}]`,
+			);
+			let totalTasks = {
 				todo: 0,
 				doing: 0,
 				done: 0,
 				total: 0,
 			};
-			for (const link of proj.airtableLinks) {
-				const tasks = await getProjectTasks(link.url);
-				totalTasks.todo = totalTasks.todo + tasks.todo;
-				totalTasks.doing = totalTasks.doing + tasks.doing;
-				totalTasks.done = totalTasks.done + tasks.done;
-				totalTasks.total = totalTasks.total + tasks.total;
+			if (!cachedTasks) {
+				for (const link of proj.airtableLinks) {
+					const tasks = await getProjectTasks(link.url);
+					totalTasks.todo = totalTasks.todo + tasks.todo;
+					totalTasks.doing = totalTasks.doing + tasks.doing;
+					totalTasks.done = totalTasks.done + tasks.done;
+					totalTasks.total = totalTasks.total + tasks.total;
+				}
+				await this.cacheManager.set(`project-tasks-[${proj.id}]`, totalTasks);
+			} else {
+				totalTasks = cachedTasks;
 			}
 			const situation = getProjectSituation({
 				startDate: proj.startDate.toISOString(),
@@ -124,19 +143,27 @@ export class ProjectsController {
 
 		const googleFiles = await listDriveFiles(project.driveFolderId);
 		const googleCalendar = await listCalendarEvents(project.name);
+		const cachedTasks: ICacheProjectTask = await this.cacheManager.get(
+			`project-tasks-[${project.id}]`,
+		);
 
-		const totalTasks = {
+		let totalTasks = {
 			todo: 0,
 			doing: 0,
 			done: 0,
 			total: 0,
 		};
-		for (const link of project.airtableLinks) {
-			const tasks = await getProjectTasks(link.url);
-			totalTasks.todo = totalTasks.todo + tasks.todo;
-			totalTasks.doing = totalTasks.doing + tasks.doing;
-			totalTasks.done = totalTasks.done + tasks.done;
-			totalTasks.total = totalTasks.total + tasks.total;
+		if (!cachedTasks) {
+			for (const link of project.airtableLinks) {
+				const tasks = await getProjectTasks(link.url);
+				totalTasks.todo = totalTasks.todo + tasks.todo;
+				totalTasks.doing = totalTasks.doing + tasks.doing;
+				totalTasks.done = totalTasks.done + tasks.done;
+				totalTasks.total = totalTasks.total + tasks.total;
+			}
+			await this.cacheManager.set(`project-tasks-[${project.id}]`, totalTasks);
+		} else {
+			totalTasks = cachedTasks;
 		}
 
 		const situation = getProjectSituation({
@@ -161,10 +188,14 @@ export class ProjectsController {
 
 	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 	@Patch(':id')
-	update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
+	async update(
+		@Param('id') id: string,
+		@Body() updateProjectDto: UpdateProjectDto,
+	) {
 		if (isNaN(+id)) {
 			throw new BadRequestException(['O id do projeto não é valido']);
 		}
+		await this.cacheManager.del(`project-tasks-[${id}]`);
 		return this.projectsService.update(+id, updateProjectDto);
 	}
 
@@ -190,7 +221,8 @@ export class ProjectsController {
 
 	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 	@Delete(':id')
-	remove(@Param('id') id: string) {
+	async remove(@Param('id') id: string) {
+		await this.cacheManager.del(`project-tasks-[${id}]`);
 		return this.projectsService.remove(+id);
 	}
 }

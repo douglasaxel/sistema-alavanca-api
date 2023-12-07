@@ -10,6 +10,7 @@ import {
 	NotFoundException,
 	BadRequestException,
 	HttpStatus,
+	Inject,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -22,13 +23,25 @@ import { getProjectTasks } from 'src/services/airtable';
 import { getBase64MimeTypeAndValue } from 'src/utils/string-helper';
 import { createDriveFile } from 'src/services/googleapi';
 import { getProjectSituation } from 'src/utils/get-project-situation';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+
+type ICacheProjectTask = {
+	todo: number;
+	doing: number;
+	done: number;
+	total: number;
+};
 
 @ApiTags('Customers')
 @UseAuthGuard()
 @Roles(UserRoles.ADMIN, UserRoles.MASTER)
 @Controller('customers')
 export class CustomersController {
-	constructor(private readonly customersService: CustomersService) {}
+	constructor(
+		private readonly customersService: CustomersService,
+		@Inject(CACHE_MANAGER) private cacheManager: Cache,
+	) {}
 
 	@Post()
 	async create(@Body() createCustomerDto: CreateCustomerDto) {
@@ -92,18 +105,26 @@ export class CustomersController {
 
 		const results = [];
 		for (const proj of customer.projects) {
-			const totalTasks = {
+			const cachedTasks: ICacheProjectTask = await this.cacheManager.get(
+				`project-tasks-[${proj.id}]`,
+			);
+			let totalTasks = {
 				todo: 0,
 				doing: 0,
 				done: 0,
 				total: 0,
 			};
-			for (const link of proj.airtableLinks) {
-				const tasks = await getProjectTasks(link.url);
-				totalTasks.todo = totalTasks.todo + tasks.todo;
-				totalTasks.doing = totalTasks.doing + tasks.doing;
-				totalTasks.done = totalTasks.done + tasks.done;
-				totalTasks.total = totalTasks.total + tasks.total;
+			if (!cachedTasks) {
+				for (const link of proj.airtableLinks) {
+					const tasks = await getProjectTasks(link.url);
+					totalTasks.todo = totalTasks.todo + tasks.todo;
+					totalTasks.doing = totalTasks.doing + tasks.doing;
+					totalTasks.done = totalTasks.done + tasks.done;
+					totalTasks.total = totalTasks.total + tasks.total;
+				}
+				await this.cacheManager.set(`project-tasks-[${proj.id}]`, totalTasks);
+			} else {
+				totalTasks = cachedTasks;
 			}
 			const situation = getProjectSituation({
 				startDate: proj.startDate.toISOString(),
@@ -173,3 +194,9 @@ export class CustomersController {
 		};
 	}
 }
+
+/**
+ * 1 pilar - pessoa
+ * 2 pilar - momento atual
+ * 3 pilar - desejo
+ */
