@@ -194,9 +194,3 @@ export class CustomersController {
 		};
 	}
 }
-
-/**
- * 1 pilar - pessoa
- * 2 pilar - momento atual
- * 3 pilar - desejo
- */
