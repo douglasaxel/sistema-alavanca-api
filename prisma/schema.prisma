@@ -99,7 +99,7 @@ model Project {
   accountable       String        @db.VarChar(255)
   value             Float         @db.Double
   airtableUrl       String?       @db.VarChar(255)
-  airtableIframeUrl String        @db.VarChar(255)
+  airtableIframeUrl String?       @db.VarChar(255)
   driveFolderId     String        @db.VarChar(255)
   status            ProjectStatus @default(PENDING)
   startDate         DateTime
@@ -130,9 +130,10 @@ model Collaborator {
 }
 
 model AirtableLink {
-  id        Int    @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   idProject Int
-  url       String @db.VarChar(255)
+  url       String  @db.VarChar(255)
+  iframe    String? @db.VarChar(255)
 
   project Project @relation(fields: [idProject], references: [id])
 

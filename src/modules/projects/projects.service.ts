@@ -80,6 +80,7 @@ export class ProjectsService {
 					select: {
 						id: true,
 						url: true,
+						iframe: true,
 					},
 				},
 			},
@@ -129,6 +130,7 @@ export class ProjectsService {
 					data: airtableLinks.map(a => ({
 						idProject: id,
 						url: a.url,
+						iframe: a.iframe,
 					})),
 				}),
 			);
@@ -137,7 +139,7 @@ export class ProjectsService {
 		await this.prismaService.$transaction(transactions);
 	}
 
-	async createCollaborators(id: number, collaborator: CreateCollaboratorDto) {
+	createCollaborators(id: number, collaborator: CreateCollaboratorDto) {
 		return this.prismaService.collaborator.create({
 			data: {
 				...collaborator,
@@ -146,7 +148,7 @@ export class ProjectsService {
 		});
 	}
 
-	async removeCollaborators(idProject: number, idCollaborator: number) {
+	removeCollaborators(idProject: number, idCollaborator: number) {
 		return this.prismaService.collaborator.delete({
 			where: { id: idCollaborator, idProject },
 		});

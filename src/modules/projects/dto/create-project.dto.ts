@@ -19,6 +19,11 @@ class CreateAirtableLink {
 	@IsNotEmpty({ message: 'A URL do airtable não pode ser vazia' })
 	@ApiProperty()
 	public url: string;
+
+	@IsUrl()
+	@IsNotEmpty({ message: 'O iframe do airtable não pode ser vazio' })
+	@ApiProperty()
+	public iframe: string;
 }
 
 export class CreateProjectDto {
@@ -75,8 +80,9 @@ export class CreateProjectDto {
 
 	@IsString()
 	@IsUrl()
-	@IsNotEmpty({ message: 'A URL do iframe do AirTable não pode ser vazio' })
-	@ApiProperty()
+	@IsOptional()
+	// @IsNotEmpty({ message: 'A URL do iframe do AirTable não pode ser vazio' })
+	@ApiProperty({ deprecated: true })
 	public airtableIframeUrl: string;
 
 	@IsDate()
