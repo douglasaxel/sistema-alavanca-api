@@ -4,7 +4,6 @@ import {
 	Post,
 	Body,
 	Param,
-	Query,
 	NotFoundException,
 	BadRequestException,
 } from '@nestjs/common';
@@ -12,10 +11,11 @@ import { MessagesService } from './messages.service';
 import { parseMessagesToJson } from 'src/utils/string-helper';
 import { UserRoles } from '../roles/roles.enum';
 import { Roles } from '../roles/roles.decorator';
-import { CreateMessageDto } from './dto/create-message.dto';
 import { ProjectsService } from '../projects/projects.service';
 import { listDriveFiles } from 'src/services/googleapi';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Messages')
 @Controller('messages')
 export class MessagesController {
 	constructor(
@@ -30,12 +30,14 @@ export class MessagesController {
 		@Body('text') text: string,
 	) {
 		if (isNaN(+idProject)) {
-			throw new BadRequestException(['O id do projeto é inválido'])
+			throw new BadRequestException(['O id do projeto é inválido']);
 		}
 		const messages = parseMessagesToJson(text);
 
 		if (messages.length === 0) {
-			throw new BadRequestException(['Não foi possível extrair a conversa a partir deste arquivo'])
+			throw new BadRequestException([
+				'Não foi possível extrair a conversa a partir deste arquivo',
+			]);
 		}
 
 		const project = await this.projectsService.findOne(+idProject);
@@ -73,7 +75,7 @@ export class MessagesController {
 	@Get(':idProject')
 	listProjectMessages(@Param('idProject') idProject: number) {
 		if (isNaN(+idProject)) {
-			throw new BadRequestException(['O id do projeto é inválido'])
+			throw new BadRequestException(['O id do projeto é inválido']);
 		}
 		return this.messagesService.listProjectMessages(+idProject);
 	}

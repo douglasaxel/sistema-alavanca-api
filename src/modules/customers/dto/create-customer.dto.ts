@@ -131,7 +131,7 @@ export class CreateCustomerDto {
 	@ValidateNested({ each: true })
 	// @ArrayMinSize(1, { message: 'O cliente deve ter no mínimo 1 contato' })
 	@Type(() => CreateContactDto)
-	@ApiProperty()
+	@ApiProperty({ type: CreateContactDto })
 	public contacts: CreateContactDto[];
 
 	@IsArray()
@@ -139,5 +139,6 @@ export class CreateCustomerDto {
 	@ValidateNested({ each: true })
 	@ArrayMinSize(1, { message: 'O cliente deve ter no mínimo 1 endereço' })
 	@Type(() => CreateUserAddressDto)
+	@ApiProperty({ type: CreateUserAddressDto })
 	public addresses: CreateUserAddressDto[];
 }

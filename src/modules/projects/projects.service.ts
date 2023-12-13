@@ -1,10 +1,15 @@
 /* eslint-disable indent */
-import { Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from 'src/database/prisma.service';
 import { FindAllProjectDto } from './dto/find-all-projects.dto';
-import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
+import { AddCollaboratorDto } from './dto/add-collaborator.dto';
+import { PrismaPromise } from '@prisma/client';
 
 @Injectable()
 export class ProjectsService {
@@ -18,11 +23,11 @@ export class ProjectsService {
 			data: {
 				...createData,
 				driveFolderId,
-				collaborators: !collaborators
-					? undefined
-					: {
-							create: collaborators,
-					  },
+				// collaborators: !collaborators
+				// 	? undefined
+				// 	: {
+				// 			create: collaborators,
+				// 	  },
 				airtableLinks: !airtableLinks
 					? undefined
 					: {
@@ -56,10 +61,10 @@ export class ProjectsService {
 		});
 	}
 
-	findOne(id: number) {
-		return this.prismaService.project.findFirst({
+	async findOne(idProject: number) {
+		const projectTransaction = this.prismaService.project.findFirst({
 			where: {
-				id,
+				id: idProject,
 				deletedAt: null,
 			},
 			include: {
@@ -67,13 +72,6 @@ export class ProjectsService {
 					select: {
 						id: true,
 						name: true,
-					},
-				},
-				collaborators: {
-					select: {
-						id: true,
-						name: true,
-						email: true,
 					},
 				},
 				airtableLinks: {
@@ -85,6 +83,18 @@ export class ProjectsService {
 				},
 			},
 		});
+		const collaboratorsTransaction = this.prismaService.collaborator.findMany({
+			where: { projects: { some: { idProject } } },
+		});
+		const [project, collaborators] = await this.prismaService.$transaction([
+			projectTransaction,
+			collaboratorsTransaction,
+		]);
+
+		return {
+			...project,
+			collaborators,
+		};
 	}
 
 	async update(
@@ -103,21 +113,21 @@ export class ProjectsService {
 			}),
 		);
 
-		if (collaborators.length > 0) {
-			transactions.push(
-				this.prismaService.collaborator.deleteMany({
-					where: { idProject: id },
-				}),
-			);
-			transactions.push(
-				this.prismaService.collaborator.createMany({
-					data: collaborators.map(c => ({
-						...c,
-						idProject: id,
-					})),
-				}),
-			);
-		}
+		// if (collaborators.length > 0) {
+		// 	transactions.push(
+		// 		this.prismaService.collaborator.deleteMany({
+		// 			where: { idProject: id },
+		// 		}),
+		// 	);
+		// 	transactions.push(
+		// 		this.prismaService.collaborator.createMany({
+		// 			data: collaborators.map(c => ({
+		// 				...c,
+		// 				idProject: id,
+		// 			})),
+		// 		}),
+		// 	);
+		// }
 
 		if (airtableLinks.length > 0) {
 			transactions.push(
@@ -139,18 +149,97 @@ export class ProjectsService {
 		await this.prismaService.$transaction(transactions);
 	}
 
-	createCollaborators(id: number, collaborator: CreateCollaboratorDto) {
-		return this.prismaService.collaborator.create({
-			data: {
-				...collaborator,
-				idProject: id,
+	findAllCollaborators() {
+		return this.prismaService.collaborator.findMany({
+			orderBy: { name: 'asc' },
+			select: {
+				id: true,
+				name: true,
+				email: true,
 			},
 		});
 	}
 
-	removeCollaborators(idProject: number, idCollaborator: number) {
+	async addCollaborators(idProject: number, collaborator: AddCollaboratorDto) {
+		const exist = await this.prismaService.collaborator.findFirst({
+			where: {
+				OR: [{ id: collaborator.id }, { email: collaborator.email }],
+			},
+			select: {
+				id: true,
+				projects: {
+					select: {
+						idProject: true,
+					},
+				},
+			},
+		});
+
+		if (exist) {
+			if (exist.projects.map(p => p.idProject).includes(idProject)) {
+				throw new BadRequestException([
+					'Este colaborador já está alocado a este projeto',
+				]);
+			}
+			await this.prismaService.collaborator.update({
+				where: { id: exist.id },
+				data: {
+					name: collaborator.name,
+					email: collaborator.email,
+					projects: {
+						create: {
+							idProject,
+						},
+					},
+				},
+			});
+			return null;
+		}
+
+		await this.prismaService.collaborator.create({
+			data: {
+				name: collaborator.name,
+				email: collaborator.email,
+				projects: {
+					create: {
+						idProject,
+					},
+				},
+			},
+		});
+		return null;
+	}
+
+	removeCollaborators(idCollaborator: number) {
 		return this.prismaService.collaborator.delete({
-			where: { id: idCollaborator, idProject },
+			where: { id: idCollaborator },
+		});
+	}
+
+	async removeCollaboratorFromProject(
+		idProject: number,
+		idCollaborator: number,
+	) {
+		const exist = await this.prismaService.collaboratorsOnProjects.findFirst({
+			where: {
+				idProject,
+				idCollaborator,
+			},
+		});
+
+		if (!exist) {
+			throw new NotFoundException([
+				'Este colaborador não está alocado neste projeto',
+			]);
+		}
+
+		return this.prismaService.collaboratorsOnProjects.delete({
+			where: {
+				idProject_idCollaborator: {
+					idProject,
+					idCollaborator,
+				},
+			},
 		});
 	}
 

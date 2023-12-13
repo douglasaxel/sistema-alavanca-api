@@ -108,25 +108,35 @@ model Project {
   updatedAt         DateTime      @updatedAt
   deletedAt         DateTime?
 
-  collaborators Collaborator[]
-  customer      Customer?      @relation(fields: [idCustomer], references: [id])
+  customer      Customer?                 @relation(fields: [idCustomer], references: [id])
   airtableLinks AirtableLink[]
   messages      Message[]
+  collaborators CollaboratorsOnProjects[]
 
   @@map("projects")
 }
 
 model Collaborator {
-  id        Int      @id @default(autoincrement())
-  idProject Int
-  name      String   @db.VarChar(255)
-  email     String   @db.VarChar(255)
-  createdAt DateTime @default(now())
+  id        Int                       @id @default(autoincrement())
+  name      String                    @db.VarChar(255)
+  email     String                    @unique @db.VarChar(255)
+  createdAt DateTime                  @default(now())
+  projects  CollaboratorsOnProjects[]
 
-  project Project @relation(fields: [idProject], references: [id])
-
-  @@index([idProject, email])
+  @@index([email])
   @@map("collaborators")
+}
+
+model CollaboratorsOnProjects {
+  idProject      Int
+  idCollaborator Int
+  assignedAt     DateTime @default(now())
+
+  project      Project      @relation(fields: [idProject], references: [id])
+  collaborator Collaborator @relation(fields: [idCollaborator], references: [id])
+
+  @@id([idProject, idCollaborator])
+  @@map("collaborator_to_project")
 }
 
 model AirtableLink {

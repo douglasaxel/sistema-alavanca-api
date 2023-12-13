@@ -6,12 +6,14 @@ import { getNumbersFromString } from 'src/utils/string-helper';
 export class CreateContactDto {
 	@IsString()
 	@IsNotEmpty({ message: 'O nome do contato não pode ser vazio' })
+	@ApiProperty()
 	public name: string;
 
 	@IsString()
 	@IsEmail()
 	@IsNotEmpty({ message: 'O e-mail do contato não pode ser vazio' })
 	@Transform(({ value }) => value.replace(/\s/g, '').toLocaleLowerCase())
+	@ApiProperty()
 	public email: string;
 
 	@IsString()

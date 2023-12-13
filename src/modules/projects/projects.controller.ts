@@ -26,8 +26,8 @@ import {
 	listDriveFiles,
 } from 'src/services/googleapi';
 import { CreateCalendarEventDto } from './dto/create-calendar-event.dto';
-import { ApiNoContentResponse } from '@nestjs/swagger';
-import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
+import { ApiNoContentResponse, ApiTags } from '@nestjs/swagger';
+import { AddCollaboratorDto } from './dto/add-collaborator.dto';
 import { Roles } from '../roles/roles.decorator';
 import { UserRoles } from '../roles/roles.enum';
 import { getProjectSituation } from 'src/utils/get-project-situation';
@@ -41,6 +41,7 @@ type ICacheProjectTask = {
 	total: number;
 };
 
+@ApiTags('Projects')
 @Controller('projects')
 export class ProjectsController {
 	constructor(
@@ -131,6 +132,12 @@ export class ProjectsController {
 		return results.map(p => ({ ...p, airtableLinks: undefined }));
 	}
 
+	@Roles(UserRoles.ADMIN, UserRoles.MASTER, UserRoles.BASIC, UserRoles.CUSTOMER)
+	@Get('/collaborators')
+	async getCollaborators() {
+		return this.projectsService.findAllCollaborators();
+	}
+
 	@Roles(UserRoles.ADMIN, UserRoles.MASTER, UserRoles.CUSTOMER, UserRoles.BASIC)
 	@Get(':id')
 	async findOne(@Param('id') id: string) {
@@ -200,22 +207,36 @@ export class ProjectsController {
 	}
 
 	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
-	@Put(':id/collaborators')
+	@Put(':idProject/collaborators')
 	async addCollaborators(
-		@Param('id') id: number,
-		@Body() createCollaboratorDto: CreateCollaboratorDto,
+		@Param('idProject') idProject: number,
+		@Body() addCollaboratorDto: AddCollaboratorDto,
 	) {
-		return this.projectsService.createCollaborators(id, createCollaboratorDto);
+		return this.projectsService.addCollaborators(idProject, addCollaboratorDto);
 	}
 
 	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
 	@ApiNoContentResponse()
-	@Delete(':id/collaborators/:idCollaborator')
+	@Delete(':idProject/collaborators/:idCollaborator/delete')
 	async removeCollaborators(
-		@Param('id') id: number,
+		@Param('idProject') idProject: number,
 		@Param('idCollaborator') idCollaborator: number,
 	) {
-		await this.projectsService.removeCollaborators(id, idCollaborator);
+		await this.projectsService.removeCollaborators(idCollaborator);
+		return null;
+	}
+
+	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
+	@ApiNoContentResponse()
+	@Delete(':idProject/collaborators/:idCollaborator')
+	async removeCollaboratorFromProject(
+		@Param('idProject') idProject: number,
+		@Param('idCollaborator') idCollaborator: number,
+	) {
+		await this.projectsService.removeCollaboratorFromProject(
+			idProject,
+			idCollaborator,
+		);
 		return null;
 	}
 

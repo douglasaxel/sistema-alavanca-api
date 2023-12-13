@@ -71,16 +71,28 @@ async function main() {
 			collaborators: {
 				create: [
 					{
-						name: faker.person.fullName(),
-						email: faker.internet.email().toLocaleLowerCase(),
+						collaborator: {
+							create: {
+								name: faker.person.fullName(),
+								email: faker.internet.email().toLocaleLowerCase(),
+							},
+						},
 					},
 					{
-						name: faker.person.fullName(),
-						email: faker.internet.email().toLocaleLowerCase(),
+						collaborator: {
+							create: {
+								name: faker.person.fullName(),
+								email: faker.internet.email().toLocaleLowerCase(),
+							},
+						},
 					},
 					{
-						name: faker.person.fullName(),
-						email: faker.internet.email().toLocaleLowerCase(),
+						collaborator: {
+							create: {
+								name: faker.person.fullName(),
+								email: faker.internet.email().toLocaleLowerCase(),
+							},
+						},
 					},
 				],
 			},
@@ -114,8 +126,12 @@ async function main() {
 			collaborators: {
 				create: [
 					{
-						name: faker.person.fullName(),
-						email: faker.internet.email().toLocaleLowerCase(),
+						collaborator: {
+							create: {
+								name: faker.person.fullName(),
+								email: faker.internet.email().toLocaleLowerCase(),
+							},
+						},
 					},
 				],
 			},
@@ -152,16 +168,28 @@ async function main() {
 			collaborators: {
 				create: [
 					{
-						name: faker.person.fullName(),
-						email: faker.internet.email().toLocaleLowerCase(),
+						collaborator: {
+							create: {
+								name: faker.person.fullName(),
+								email: faker.internet.email().toLocaleLowerCase(),
+							},
+						},
 					},
 					{
-						name: faker.person.fullName(),
-						email: faker.internet.email().toLocaleLowerCase(),
+						collaborator: {
+							create: {
+								name: faker.person.fullName(),
+								email: faker.internet.email().toLocaleLowerCase(),
+							},
+						},
 					},
 					{
-						name: faker.person.fullName(),
-						email: faker.internet.email().toLocaleLowerCase(),
+						collaborator: {
+							create: {
+								name: faker.person.fullName(),
+								email: faker.internet.email().toLocaleLowerCase(),
+							},
+						},
 					},
 				],
 			},
@@ -187,12 +215,20 @@ async function main() {
 			collaborators: {
 				create: [
 					{
-						name: faker.person.fullName(),
-						email: faker.internet.email().toLocaleLowerCase(),
+						collaborator: {
+							create: {
+								name: faker.person.fullName(),
+								email: faker.internet.email().toLocaleLowerCase(),
+							},
+						},
 					},
 					{
-						name: faker.person.fullName(),
-						email: faker.internet.email().toLocaleLowerCase(),
+						collaborator: {
+							create: {
+								name: faker.person.fullName(),
+								email: faker.internet.email().toLocaleLowerCase(),
+							},
+						},
 					},
 				],
 			},
