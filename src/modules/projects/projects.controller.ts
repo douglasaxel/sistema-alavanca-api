@@ -9,7 +9,6 @@ import {
 	Query,
 	NotFoundException,
 	BadRequestException,
-	Put,
 	Inject,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
@@ -27,7 +26,6 @@ import {
 } from 'src/services/googleapi';
 import { CreateCalendarEventDto } from './dto/create-calendar-event.dto';
 import { ApiNoContentResponse, ApiTags } from '@nestjs/swagger';
-import { AddCollaboratorDto } from './dto/add-collaborator.dto';
 import { Roles } from '../roles/roles.decorator';
 import { UserRoles } from '../roles/roles.enum';
 import { getProjectSituation } from 'src/utils/get-project-situation';
@@ -132,12 +130,6 @@ export class ProjectsController {
 		return results.map(p => ({ ...p, airtableLinks: undefined }));
 	}
 
-	@Roles(UserRoles.ADMIN, UserRoles.MASTER, UserRoles.BASIC, UserRoles.CUSTOMER)
-	@Get('/collaborators')
-	async getCollaborators() {
-		return this.projectsService.findAllCollaborators();
-	}
-
 	@Roles(UserRoles.ADMIN, UserRoles.MASTER, UserRoles.CUSTOMER, UserRoles.BASIC)
 	@Get(':id')
 	async findOne(@Param('id') id: string) {
@@ -204,40 +196,6 @@ export class ProjectsController {
 		}
 		await this.cacheManager.del(`project-tasks-[${id}]`);
 		return this.projectsService.update(+id, updateProjectDto);
-	}
-
-	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
-	@Put(':idProject/collaborators')
-	async addCollaborators(
-		@Param('idProject') idProject: number,
-		@Body() addCollaboratorDto: AddCollaboratorDto,
-	) {
-		return this.projectsService.addCollaborators(idProject, addCollaboratorDto);
-	}
-
-	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
-	@ApiNoContentResponse()
-	@Delete(':idProject/collaborators/:idCollaborator/delete')
-	async removeCollaborators(
-		@Param('idProject') idProject: number,
-		@Param('idCollaborator') idCollaborator: number,
-	) {
-		await this.projectsService.removeCollaborators(idCollaborator);
-		return null;
-	}
-
-	@Roles(UserRoles.ADMIN, UserRoles.MASTER)
-	@ApiNoContentResponse()
-	@Delete(':idProject/collaborators/:idCollaborator')
-	async removeCollaboratorFromProject(
-		@Param('idProject') idProject: number,
-		@Param('idCollaborator') idCollaborator: number,
-	) {
-		await this.projectsService.removeCollaboratorFromProject(
-			idProject,
-			idCollaborator,
-		);
-		return null;
 	}
 
 	@Roles(UserRoles.ADMIN, UserRoles.MASTER)

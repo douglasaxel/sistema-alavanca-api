@@ -8,6 +8,7 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { CollaboratorsModule } from './modules/collaborators/collaborators.module';
 
 @Module({
 	imports: [
@@ -26,6 +27,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 			isGlobal: true,
 			ttl: 1 * 60 * 60 * 1000,
 		}),
+		CollaboratorsModule,
 	],
 	controllers: [],
 	providers: [],

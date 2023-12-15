@@ -1,33 +1,22 @@
 /* eslint-disable indent */
-import {
-	BadRequestException,
-	Injectable,
-	NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from 'src/database/prisma.service';
 import { FindAllProjectDto } from './dto/find-all-projects.dto';
-import { AddCollaboratorDto } from './dto/add-collaborator.dto';
-import { PrismaPromise } from '@prisma/client';
 
 @Injectable()
 export class ProjectsService {
 	constructor(private prismaService: PrismaService) {}
 
 	create(
-		{ collaborators, airtableLinks, ...createData }: CreateProjectDto,
+		{ airtableLinks, ...createData }: CreateProjectDto,
 		driveFolderId: string,
 	) {
 		return this.prismaService.project.create({
 			data: {
 				...createData,
 				driveFolderId,
-				// collaborators: !collaborators
-				// 	? undefined
-				// 	: {
-				// 			create: collaborators,
-				// 	  },
 				airtableLinks: !airtableLinks
 					? undefined
 					: {
@@ -97,10 +86,7 @@ export class ProjectsService {
 		};
 	}
 
-	async update(
-		id: number,
-		{ collaborators, airtableLinks, ...updateData }: UpdateProjectDto,
-	) {
+	async update(id: number, { airtableLinks, ...updateData }: UpdateProjectDto) {
 		const transactions = [];
 		transactions.push(
 			this.prismaService.project.update({
@@ -112,22 +98,6 @@ export class ProjectsService {
 				},
 			}),
 		);
-
-		// if (collaborators.length > 0) {
-		// 	transactions.push(
-		// 		this.prismaService.collaborator.deleteMany({
-		// 			where: { idProject: id },
-		// 		}),
-		// 	);
-		// 	transactions.push(
-		// 		this.prismaService.collaborator.createMany({
-		// 			data: collaborators.map(c => ({
-		// 				...c,
-		// 				idProject: id,
-		// 			})),
-		// 		}),
-		// 	);
-		// }
 
 		if (airtableLinks.length > 0) {
 			transactions.push(
@@ -147,100 +117,6 @@ export class ProjectsService {
 		}
 
 		await this.prismaService.$transaction(transactions);
-	}
-
-	findAllCollaborators() {
-		return this.prismaService.collaborator.findMany({
-			orderBy: { name: 'asc' },
-			select: {
-				id: true,
-				name: true,
-				email: true,
-			},
-		});
-	}
-
-	async addCollaborators(idProject: number, collaborator: AddCollaboratorDto) {
-		const exist = await this.prismaService.collaborator.findFirst({
-			where: {
-				OR: [{ id: collaborator.id }, { email: collaborator.email }],
-			},
-			select: {
-				id: true,
-				projects: {
-					select: {
-						idProject: true,
-					},
-				},
-			},
-		});
-
-		if (exist) {
-			if (exist.projects.map(p => p.idProject).includes(idProject)) {
-				throw new BadRequestException([
-					'Este colaborador já está alocado a este projeto',
-				]);
-			}
-			await this.prismaService.collaborator.update({
-				where: { id: exist.id },
-				data: {
-					name: collaborator.name,
-					email: collaborator.email,
-					projects: {
-						create: {
-							idProject,
-						},
-					},
-				},
-			});
-			return null;
-		}
-
-		await this.prismaService.collaborator.create({
-			data: {
-				name: collaborator.name,
-				email: collaborator.email,
-				projects: {
-					create: {
-						idProject,
-					},
-				},
-			},
-		});
-		return null;
-	}
-
-	removeCollaborators(idCollaborator: number) {
-		return this.prismaService.collaborator.delete({
-			where: { id: idCollaborator },
-		});
-	}
-
-	async removeCollaboratorFromProject(
-		idProject: number,
-		idCollaborator: number,
-	) {
-		const exist = await this.prismaService.collaboratorsOnProjects.findFirst({
-			where: {
-				idProject,
-				idCollaborator,
-			},
-		});
-
-		if (!exist) {
-			throw new NotFoundException([
-				'Este colaborador não está alocado neste projeto',
-			]);
-		}
-
-		return this.prismaService.collaboratorsOnProjects.delete({
-			where: {
-				idProject_idCollaborator: {
-					idProject,
-					idCollaborator,
-				},
-			},
-		});
 	}
 
 	remove(id: number) {

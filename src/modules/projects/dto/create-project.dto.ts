@@ -12,7 +12,6 @@ import {
 	IsOptional,
 	ArrayMinSize,
 } from 'class-validator';
-import { AddCollaboratorDto } from './add-collaborator.dto';
 
 class CreateAirtableLink {
 	@IsUrl()
@@ -96,10 +95,4 @@ export class CreateProjectDto {
 	@ApiProperty()
 	@Transform(({ value }) => new Date(value))
 	public endDate: Date;
-
-	@IsArray()
-	@ValidateNested({ each: true })
-	@Type(() => AddCollaboratorDto)
-	@ApiProperty()
-	public collaborators: AddCollaboratorDto[];
 }
