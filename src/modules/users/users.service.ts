@@ -14,7 +14,7 @@ export class UsersService {
 			throw new BadRequestException(['E-mail already in use']);
 		}
 
-		await this.prismaService.user.create({
+		return this.prismaService.user.create({
 			data: {
 				name: createUserDto.name,
 				email: createUserDto.email,

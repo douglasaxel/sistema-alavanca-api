@@ -10,6 +10,15 @@ import { PrismaService } from 'src/database/prisma.service';
 export class CollaboratorsService {
 	constructor(private prismaService: PrismaService) {}
 
+	create(collaborator: AddCollaboratorDto) {
+		return this.prismaService.collaborator.create({
+			data: {
+				name: collaborator.name,
+				email: collaborator.email,
+			},
+		});
+	}
+
 	findAllCollaborators() {
 		return this.prismaService.collaborator.findMany({
 			orderBy: { name: 'asc' },

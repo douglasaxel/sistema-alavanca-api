@@ -20,13 +20,17 @@ import { hashPasssword } from 'src/utils/password';
 import { Roles } from '../roles/roles.decorator';
 import { createDriveFile } from 'src/services/googleapi';
 import { getBase64MimeTypeAndValue } from 'src/utils/string-helper';
+import { CollaboratorsService } from '../collaborators/collaborators.service';
 
 @ApiTags('Users')
 @UseAuthGuard()
 @Roles(UserRoles.ADMIN, UserRoles.MASTER)
 @Controller('users')
 export class UsersController {
-	constructor(private readonly usersService: UsersService) {}
+	constructor(
+		private readonly usersService: UsersService,
+		private collaboratorService: CollaboratorsService,
+	) {}
 
 	@Post('senha')
 	senha(@Body() body: { senha: string }) {
@@ -53,6 +57,10 @@ export class UsersController {
 			...createUserDto,
 			password: await hashPasssword(createUserDto.password),
 			image: thumbnailLink,
+		});
+		await this.collaboratorService.create({
+			name: newUser.name,
+			email: newUser.email,
 		});
 
 		return newUser;
